@@ -7,6 +7,7 @@
 ## What this is
 
 I'm building a realistic hummingbird out of paper. This is where I keep everything – the wins, the failures, the detours, the tools I accidentally built along the way.
+<img width="768" height="1024" alt="image" src="https://github.com/user-attachments/assets/486610e8-4770-4060-a81d-79c9c8921eb1" />
 
 ---
 
