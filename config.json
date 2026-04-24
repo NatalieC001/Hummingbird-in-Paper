@@ -1,1 +1,12 @@
 
+{
+  "input": "gallery",
+  "output": "build_output",
+  "title": "Hummingbird Paper Sculpture - Process Diary",
+  "sort-albums-by": "filename",
+  "sort-media-by": "filename",
+  "download-photos": "copy",
+  "cleanup": true,
+  "theme": "cards",
+  "footer": "Hummingbird in Paper - Process Diary"
+}
