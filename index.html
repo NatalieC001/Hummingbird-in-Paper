@@ -212,6 +212,7 @@
     const GITHUB_REPO = 'Hummingbird-in-Paper';
     const BRANCH = 'main';
     const BASE_RAW = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/gallery/`;
+    const BASE_MEDIA = `https://media.githubusercontent.com/media/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/gallery/`;
     const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/gallery`;
     
     const container = document.getElementById('gallery-container');
@@ -280,9 +281,10 @@
         return media.map(item => {
           const ext = item.name.split('.').pop();
           const isVideo = videoExtensions.includes(ext);
+          const url = isVideo ? `${BASE_MEDIA}${folderName}/${item.name}` : `${BASE_RAW}${folderName}/${item.name}`;
           return {
             name: item.name,
-            url: `${BASE_RAW}${folderName}/${item.name}`,
+            url: url,
             downloadUrl: item.download_url,
             isVideo: isVideo
           };
