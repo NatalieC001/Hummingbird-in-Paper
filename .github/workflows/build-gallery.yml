@@ -1,0 +1,374 @@
+name: Build Gallery
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create complete gallery HTML file
+        run: |
+          mkdir -p _site
+          
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Hummingbird in Paper - Process Gallery</title>
+            <style>
+              * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+              }
+              
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+                background: #f5f0e8;
+                padding: 30px 20px;
+                color: #2c2820;
+              }
+              
+              .container {
+                max-width: 1400px;
+                margin: 0 auto;
+              }
+              
+              header {
+                text-align: center;
+                margin-bottom: 50px;
+              }
+              
+              h1 {
+                font-size: 2.5rem;
+                color: #2d5a2c;
+                font-weight: 500;
+                letter-spacing: -0.5px;
+              }
+              
+              .subhead {
+                color: #7a6b55;
+                font-size: 1.1rem;
+                margin-top: 10px;
+                font-style: italic;
+              }
+              
+              .album {
+                background: white;
+                border-radius: 20px;
+                padding: 30px;
+                margin-bottom: 40px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+                border: 1px solid #e2d8cc;
+              }
+              
+              .album h2 {
+                font-size: 1.8rem;
+                font-weight: 500;
+                color: #4a3e2c;
+                margin-bottom: 8px;
+              }
+              
+              .album-meta {
+                color: #9b8b74;
+                font-size: 0.85rem;
+                margin-bottom: 25px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #efe5d8;
+              }
+              
+              .gallery-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+              }
+              
+              .gallery-item {
+                background: #faf8f4;
+                border-radius: 12px;
+                overflow: hidden;
+                cursor: pointer;
+                transition: all 0.25s ease;
+                border: 1px solid #e8dfd3;
+              }
+              
+              .gallery-item:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                border-color: #c4b49c;
+              }
+              
+              .gallery-item img {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                display: block;
+                background: #e8e0d4;
+              }
+              
+              .gallery-item-caption {
+                padding: 10px 12px;
+                font-size: 0.75rem;
+                color: #6b5d4b;
+                background: white;
+                border-top: 1px solid #efe5d8;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+              
+              .empty-album {
+                background: #faf8f4;
+                padding: 50px;
+                text-align: center;
+                color: #b8a88c;
+                border-radius: 16px;
+                border: 2px dashed #e2d8cc;
+                font-size: 1rem;
+              }
+              
+              .lightbox {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.95);
+                z-index: 10000;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+              }
+              
+              .lightbox img {
+                max-width: 90%;
+                max-height: 90%;
+                object-fit: contain;
+                border-radius: 8px;
+                box-shadow: 0 0 40px rgba(0,0,0,0.3);
+              }
+              
+              .close-hint {
+                position: fixed;
+                bottom: 25px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: rgba(255,255,255,0.7);
+                background: rgba(0,0,0,0.5);
+                padding: 8px 18px;
+                border-radius: 40px;
+                font-size: 0.8rem;
+                pointer-events: none;
+                font-family: monospace;
+              }
+              
+              footer {
+                text-align: center;
+                margin-top: 50px;
+                padding-top: 30px;
+                border-top: 1px solid #e2d8cc;
+                color: #9b8b74;
+              }
+              
+              footer a {
+                color: #5d7a4c;
+                text-decoration: none;
+              }
+              
+              footer a:hover {
+                text-decoration: underline;
+              }
+              
+              @media (max-width: 700px) {
+                body { padding: 15px; }
+                .album { padding: 20px; }
+                h1 { font-size: 1.8rem; }
+                .album h2 { font-size: 1.4rem; }
+                .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+                .gallery-item img { height: 130px; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <header>
+                <h1>🐦 Hummingbird in Paper</h1>
+                <div class="subhead">Process diary — progress, failures, discoveries, and solutions</div>
+              </header>
+              
+              <div id="gallery-container"></div>
+              
+              <footer>
+                📔 <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — a diary. No downloads. Just the process.
+              </footer>
+            </div>
+            
+            <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+              <img id="lightbox-image" alt="">
+              <div class="close-hint">Click anywhere to close — ✕</div>
+            </div>
+            
+            <script>
+              const GITHUB_USER = 'NatalieC001';
+              const GITHUB_REPO = 'Hummingbird-in-Paper';
+              const BRANCH = 'main';
+              const BASE_RAW = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/gallery/`;
+              const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/gallery`;
+              
+              const container = document.getElementById('gallery-container');
+              
+              function openLightbox(imageUrl) {
+                const lightbox = document.getElementById('lightbox');
+                const lightboxImg = document.getElementById('lightbox-image');
+                lightboxImg.src = imageUrl;
+                lightbox.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+              }
+              
+              function closeLightbox() {
+                const lightbox = document.getElementById('lightbox');
+                lightbox.style.display = 'none';
+                document.body.style.overflow = 'auto';
+              }
+              
+              async function fetchAlbumFolders() {
+                try {
+                  const response = await fetch(API_BASE);
+                  if (!response.ok) {
+                    console.error('Could not fetch gallery folders');
+                    return [];
+                  }
+                  const contents = await response.json();
+                  const folders = contents.filter(item => item.type === 'dir');
+                  return folders.map(folder => folder.name);
+                } catch (error) {
+                  console.error('Error fetching folders:', error);
+                  return [];
+                }
+              }
+              
+              async function fetchImagesInFolder(folderName) {
+                try {
+                  const response = await fetch(`${API_BASE}/${folderName}`);
+                  if (!response.ok) return [];
+                  const contents = await response.json();
+                  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'JPG', 'JPEG', 'PNG', 'GIF', 'WEBP'];
+                  const images = contents.filter(item => {
+                    if (item.type !== 'file') return false;
+                    const ext = item.name.split('.').pop();
+                    return imageExtensions.includes(ext);
+                  });
+                  return images.map(img => ({
+                    name: img.name,
+                    url: `${BASE_RAW}${folderName}/${img.name}`,
+                    downloadUrl: img.download_url
+                  }));
+                } catch (error) {
+                  console.error(`Error fetching images from ${folderName}:`, error);
+                  return [];
+                }
+              }
+              
+              function getFolderDisplayName(folderName) {
+                const nameMap = {
+                  'progress_photos': '📸 Progress Photos',
+                  'failures': '💥 Failures & What Went Wrong',
+                  'armature': '🔧 Armature & JointForge',
+                  'paper_tests': '📄 Paper Cutting Tests',
+                  'templates': '✂️ Cutting Templates',
+                  'inspirations': '✨ Artists Who Inspire Me',
+                  'discoveries': '💡 Discoveries Along the Way',
+                  'solutions': '✅ Solutions That Worked'
+                };
+                return nameMap[folderName] || `📁 ${folderName.replace(/_/g, ' ')}`;
+              }
+              
+              async function buildGallery() {
+                container.innerHTML = '<div style="text-align:center; padding:60px;">Loading gallery...</div>';
+                
+                const folders = await fetchAlbumFolders();
+                
+                if (folders.length === 0) {
+                  container.innerHTML = `
+                    <div class="empty-album" style="margin: 60px auto; max-width: 600px;">
+                      <p>📭 No photo albums found yet.</p>
+                      <p style="margin-top: 20px; font-size: 0.9rem;">Create folders inside <code style="background:#e8e0d4; padding:2px 6px; border-radius:4px;">gallery/</code> and add your photos.</p>
+                      <p style="margin-top: 10px; font-size: 0.85rem;">Example: <code style="background:#e8e0d4; padding:2px 6px; border-radius:4px;">gallery/progress_photos/photo1.jpg</code></p>
+                    </div>
+                  `;
+                  return;
+                }
+                
+                container.innerHTML = '';
+                
+                for (const folder of folders) {
+                  const images = await fetchImagesInFolder(folder);
+                  
+                  const albumDiv = document.createElement('div');
+                  albumDiv.className = 'album';
+                  
+                  const title = getFolderDisplayName(folder);
+                  albumDiv.innerHTML = `
+                    <h2>${title}</h2>
+                    <div class="album-meta">${images.length} ${images.length === 1 ? 'photo' : 'photos'}</div>
+                    <div class="gallery-grid" id="grid-${folder.replace(/[^a-zA-Z0-9]/g, '-')}"></div>
+                  `;
+                  
+                  container.appendChild(albumDiv);
+                  
+                  const gridContainer = albumDiv.querySelector('.gallery-grid');
+                  
+                  if (images.length === 0) {
+                    gridContainer.innerHTML = '<div class="empty-album" style="grid-column:1/-1;">📭 No images in this album yet</div>';
+                  } else {
+                    images.forEach(image => {
+                      const item = document.createElement('div');
+                      item.className = 'gallery-item';
+                      item.onclick = () => openLightbox(image.url);
+                      
+                      const img = document.createElement('img');
+                      img.src = image.url;
+                      img.alt = image.name;
+                      img.loading = 'lazy';
+                      img.onerror = function() {
+                        this.style.opacity = '0.3';
+                        this.style.backgroundColor = '#e8e0d4';
+                      };
+                      
+                      const caption = document.createElement('div');
+                      caption.className = 'gallery-item-caption';
+                      caption.textContent = image.name.replace(/\.[^/.]+$/, '').substring(0, 45);
+                      
+                      item.appendChild(img);
+                      item.appendChild(caption);
+                      gridContainer.appendChild(item);
+                    });
+                  }
+                }
+              }
+              
+              buildGallery();
+            </script>
+          </body>
+          </html>
+          EOF
+          
+          echo "Gallery HTML file created successfully at _site/index.html"
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
