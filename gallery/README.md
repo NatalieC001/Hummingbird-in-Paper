@@ -95,7 +95,13 @@ Wait 1 minute. Then refresh your gallery page:
 The new images will appear automatically. You do not need to re-run the workflow.
 
 
+Delete the file
+Go to: https://github.com/NatalieC001/Hummingbird-in-Paper/tree/main/gallery/progress_photos
 
+Find the file thingthing.png
+Click the checkbox next to it
+Click the "Delete" button (trash can icon) that appears
+Click "Commit changes"
 
 
 
