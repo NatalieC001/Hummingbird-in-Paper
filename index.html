@@ -87,12 +87,16 @@
       border-color: #c4b49c;
     }
     
-    .gallery-item img {
+    .gallery-item img, .gallery-item video {
       width: 100%;
       height: 200px;
       object-fit: cover;
       display: block;
       background: #e8e0d4;
+    }
+    
+    .gallery-item video {
+      pointer-events: none;
     }
     
     .gallery-item-caption {
@@ -130,12 +134,16 @@
       cursor: pointer;
     }
     
-    .lightbox img {
+    .lightbox video, .lightbox img {
       max-width: 90%;
       max-height: 90%;
       object-fit: contain;
       border-radius: 8px;
       box-shadow: 0 0 40px rgba(0,0,0,0.3);
+    }
+    
+    .lightbox video {
+      background: black;
     }
     
     .close-hint {
@@ -175,7 +183,7 @@
       h1 { font-size: 1.8rem; }
       .album h2 { font-size: 1.4rem; }
       .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-      .gallery-item img { height: 130px; }
+      .gallery-item img, .gallery-item video { height: 130px; }
     }
   </style>
 </head>
@@ -194,7 +202,8 @@
   </div>
   
   <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-    <img id="lightbox-image" alt="">
+    <video id="lightbox-video" controls style="display:none;"></video>
+    <img id="lightbox-image" alt="" style="display:none;">
     <div class="close-hint">Click anywhere to close — ✕</div>
   </div>
   
@@ -206,18 +215,33 @@
     const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/gallery`;
     
     const container = document.getElementById('gallery-container');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-image');
+    const lightboxVideo = document.getElementById('lightbox-video');
     
-    function openLightbox(imageUrl) {
-      const lightbox = document.getElementById('lightbox');
-      const lightboxImg = document.getElementById('lightbox-image');
-      lightboxImg.src = imageUrl;
+    function openLightbox(url, isVideo) {
+      if (isVideo) {
+        lightboxImg.style.display = 'none';
+        lightboxVideo.style.display = 'block';
+        lightboxVideo.src = url;
+        lightboxVideo.load();
+        lightboxVideo.play();
+      } else {
+        lightboxVideo.style.display = 'none';
+        lightboxVideo.pause();
+        lightboxVideo.src = '';
+        lightboxImg.style.display = 'block';
+        lightboxImg.src = url;
+      }
       lightbox.style.display = 'flex';
       document.body.style.overflow = 'hidden';
     }
     
     function closeLightbox() {
-      const lightbox = document.getElementById('lightbox');
       lightbox.style.display = 'none';
+      lightboxVideo.pause();
+      lightboxVideo.src = '';
+      lightboxImg.src = '';
       document.body.style.overflow = 'auto';
     }
     
@@ -237,24 +261,34 @@
       }
     }
     
-    async function fetchImagesInFolder(folderName) {
+    async function fetchMediaInFolder(folderName) {
       try {
         const response = await fetch(`${API_BASE}/${folderName}`);
         if (!response.ok) return [];
         const contents = await response.json();
+        
         const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'JPG', 'JPEG', 'PNG', 'GIF', 'WEBP'];
-        const images = contents.filter(item => {
+        const videoExtensions = ['mp4', 'mov', 'MP4', 'MOV'];
+        const allExtensions = [...imageExtensions, ...videoExtensions];
+        
+        const media = contents.filter(item => {
           if (item.type !== 'file') return false;
           const ext = item.name.split('.').pop();
-          return imageExtensions.includes(ext);
+          return allExtensions.includes(ext);
         });
-        return images.map(img => ({
-          name: img.name,
-          url: `${BASE_RAW}${folderName}/${img.name}`,
-          downloadUrl: img.download_url
-        }));
+        
+        return media.map(item => {
+          const ext = item.name.split('.').pop();
+          const isVideo = videoExtensions.includes(ext);
+          return {
+            name: item.name,
+            url: `${BASE_RAW}${folderName}/${item.name}`,
+            downloadUrl: item.download_url,
+            isVideo: isVideo
+          };
+        });
       } catch (error) {
-        console.error(`Error fetching images from ${folderName}:`, error);
+        console.error(`Error fetching media from ${folderName}:`, error);
         return [];
       }
     }
@@ -282,7 +316,7 @@
         container.innerHTML = `
           <div class="empty-album" style="margin: 60px auto; max-width: 600px;">
             <p>📭 No photo albums found yet.</p>
-            <p style="margin-top: 20px; font-size: 0.9rem;">Create folders inside <code style="background:#e8e0d4; padding:2px 6px; border-radius:4px;">gallery/</code> and add your photos.</p>
+            <p style="margin-top: 20px; font-size: 0.9rem;">Create folders inside <code style="background:#e8e0d4; padding:2px 6px; border-radius:4px;">gallery/</code> and add your photos or videos.</p>
             <p style="margin-top: 10px; font-size: 0.85rem;">Example: <code style="background:#e8e0d4; padding:2px 6px; border-radius:4px;">gallery/progress_photos/photo1.jpg</code></p>
           </div>
         `;
@@ -292,15 +326,28 @@
       container.innerHTML = '';
       
       for (const folder of folders) {
-        const images = await fetchImagesInFolder(folder);
+        const mediaItems = await fetchMediaInFolder(folder);
         
         const albumDiv = document.createElement('div');
         albumDiv.className = 'album';
         
+        const mediaCount = mediaItems.length;
+        const imageCount = mediaItems.filter(m => !m.isVideo).length;
+        const videoCount = mediaItems.filter(m => m.isVideo).length;
+        
+        let countText = `${mediaCount} ${mediaCount === 1 ? 'item' : 'items'}`;
+        if (imageCount > 0 && videoCount > 0) {
+          countText = `${imageCount} photo${imageCount !== 1 ? 's' : ''} + ${videoCount} video${videoCount !== 1 ? 's' : ''}`;
+        } else if (videoCount > 0) {
+          countText = `${videoCount} video${videoCount !== 1 ? 's' : ''}`;
+        } else {
+          countText = `${imageCount} photo${imageCount !== 1 ? 's' : ''}`;
+        }
+        
         const title = getFolderDisplayName(folder);
         albumDiv.innerHTML = `
           <h2>${title}</h2>
-          <div class="album-meta">${images.length} ${images.length === 1 ? 'photo' : 'photos'}</div>
+          <div class="album-meta">${countText}</div>
           <div class="gallery-grid" id="grid-${folder.replace(/[^a-zA-Z0-9]/g, '-')}"></div>
         `;
         
@@ -308,28 +355,42 @@
         
         const gridContainer = albumDiv.querySelector('.gallery-grid');
         
-        if (images.length === 0) {
-          gridContainer.innerHTML = '<div class="empty-album" style="grid-column:1/-1;">📭 No images in this album yet</div>';
+        if (mediaItems.length === 0) {
+          gridContainer.innerHTML = '<div class="empty-album" style="grid-column:1/-1;">📭 No media in this album yet</div>';
         } else {
-          images.forEach(image => {
+          mediaItems.forEach(media => {
             const item = document.createElement('div');
             item.className = 'gallery-item';
-            item.onclick = () => openLightbox(image.url);
+            item.onclick = () => openLightbox(media.url, media.isVideo);
             
-            const img = document.createElement('img');
-            img.src = image.url;
-            img.alt = image.name;
-            img.loading = 'lazy';
-            img.onerror = function() {
-              this.style.opacity = '0.3';
-              this.style.backgroundColor = '#e8e0d4';
-            };
+            if (media.isVideo) {
+              const video = document.createElement('video');
+              video.src = media.url;
+              video.muted = true;
+              video.preload = 'metadata';
+              video.onmouseenter = function() { this.play(); };
+              video.onmouseleave = function() { this.pause(); this.currentTime = 0; };
+              item.appendChild(video);
+            } else {
+              const img = document.createElement('img');
+              img.src = media.url;
+              img.alt = media.name;
+              img.loading = 'lazy';
+              img.onerror = function() {
+                this.style.opacity = '0.3';
+                this.style.backgroundColor = '#e8e0d4';
+              };
+              item.appendChild(img);
+            }
             
             const caption = document.createElement('div');
             caption.className = 'gallery-item-caption';
-            caption.textContent = image.name.replace(/\.[^/.]+$/, '').substring(0, 45);
+            let displayName = media.name.replace(/\.[^/.]+$/, '').substring(0, 45);
+            if (media.isVideo) {
+              displayName = '🎬 ' + displayName;
+            }
+            caption.textContent = displayName;
             
-            item.appendChild(img);
             item.appendChild(caption);
             gridContainer.appendChild(item);
           });
