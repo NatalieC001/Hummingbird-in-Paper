@@ -147,29 +147,45 @@
       flex-direction: column;
     }
     
-    .lightbox-media {
+    .lightbox-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       max-width: 90%;
-      max-height: 70vh;
+      max-height: 85vh;
+    }
+    
+    .lightbox-media {
+      max-width: 100%;
+      max-height: 65vh;
       object-fit: contain;
       border-radius: 8px;
       box-shadow: 0 0 40px rgba(0,0,0,0.3);
     }
     
     .lightbox-caption {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
+      margin-top: 20px;
       background: rgba(0,0,0,0.85);
       color: white;
       padding: 15px 25px;
       border-radius: 12px;
-      max-width: 80%;
+      max-width: 90%;
       text-align: center;
       font-size: 1rem;
       line-height: 1.5;
-      pointer-events: none;
-      z-index: 10001;
+      pointer-events: auto;
+      overflow-y: auto;
+      max-height: 20vh;
+    }
+    
+    .lightbox-caption a {
+      color: #88cc88;
+      text-decoration: none;
+    }
+    
+    .lightbox-caption a:hover {
+      text-decoration: underline;
     }
     
     .close-hint {
@@ -183,6 +199,7 @@
       font-size: 0.8rem;
       pointer-events: none;
       font-family: monospace;
+      z-index: 10001;
     }
     
     footer {
@@ -209,7 +226,8 @@
       .album h2 { font-size: 1.4rem; }
       .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
       .gallery-item img, .gallery-item video { height: 150px; }
-      .lightbox-caption { font-size: 0.85rem; padding: 10px 20px; bottom: 20px; }
+      .lightbox-caption { font-size: 0.85rem; padding: 10px 20px; max-height: 25vh; }
+      .lightbox-media { max-height: 55vh; }
     }
   </style>
 </head>
@@ -229,9 +247,11 @@
   
   <div id="lightbox" class="lightbox" onclick="closeLightbox()">
     <div class="close-hint">Click anywhere to close — ✕</div>
-    <img id="lightbox-image" class="lightbox-media" style="display:none;">
-    <video id="lightbox-video" class="lightbox-media" controls style="display:none;"></video>
-    <div id="lightbox-caption" class="lightbox-caption"></div>
+    <div class="lightbox-content">
+      <img id="lightbox-image" class="lightbox-media" style="display:none;">
+      <video id="lightbox-video" class="lightbox-media" controls style="display:none;"></video>
+      <div id="lightbox-caption" class="lightbox-caption"></div>
+    </div>
   </div>
   
   <script>
@@ -448,7 +468,6 @@
             const fileName = media.name.replace(/\.[^/.]+$/, '');
             const displayName = fileName.length > 35 ? fileName.substring(0, 32) + '...' : fileName;
             
-            // Strip HTML tags for grid preview to keep it clean
             const plainTextDescription = media.description.replace(/<[^>]*>/g, '');
             
             if (media.description) {
