@@ -7,7 +7,12 @@
 ## What this is
 
 I'm building a realistic hummingbird out of paper. This is where I keep everything – the wins, the failures, the detours, the tools I accidentally built along the way.
+
 <img width="768" height="1024" alt="image" src="https://github.com/user-attachments/assets/486610e8-4770-4060-a81d-79c9c8921eb1" />
+
+Uh the below photo is not retouched in any way I'm quite pleased with the feathers so far 
+
+<img width="620" height="826" alt="image" src="https://github.com/user-attachments/assets/37c4801e-bc5e-4e61-a2c6-2515ebecc72f" />
 
 ---
 
