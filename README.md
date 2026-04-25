@@ -40,7 +40,7 @@ Measurements. Material tests. Glue disasters. Little discoveries.
 ## Inspirations
 
 - **[Calvin Nicholls](https://calvinnicholls.com/)** – paper sculpture.
-- **Johan Scherft** – [paper sculpture](https://www.youtube.com/watch?v=HEqqt3vbovw) with a hint of pepikura and a lot of magic.
+- **[Johan Scherft](https://www.youtube.com/watch?v=HEqqt3vbovw)** – paper sculpture with a hint of pepikura and a lot of magic.
 - **[Patrick Cabral](https://www.designboom.com/art/patrick-cabral-endangered-species-papercut-05-16-2017/)** – layered paper cutwork. Different style, same obsession.
 
 
