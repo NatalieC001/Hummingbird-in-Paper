@@ -9,3 +9,4 @@ Pasted image 20260421150205.png: Reference image I used for hummingbird anatomy
 Pasted image 20260423142520.png: Progress shot - wing structure taking shape
 Pasted image 20260423142537.png: Testing the fold mechanics - this version worked!
 Pasted image 20260423143324.png: Comparison between first prototype (left) and second (right)
+JointForge_Mockup.png: A concept sketch mapping the logic behind our custom <a href="https://github.com/NatalieC001/Hummingbird-in-Paper/tree/main/jointforge" target="_blank">JointForge Blender plugin</a>. This tool automatically splits oversized armatures to fit standard printing beds with snap-fit joints.
