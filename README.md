@@ -40,7 +40,7 @@ Measurements. Material tests. Glue disasters. Little discoveries.
 ## Inspirations
 
 - **[Calvin Nicholls](https://calvinnicholls.com/)** – paper sculpture.
-- **Johan Scherft** – paper sculpture with a hint of pepikura and a lot of magic.
+- **Johan Scherft** – [paper sculpture](https://www.youtube.com/watch?v=HEqqt3vbovw) with a hint of pepikura and a lot of magic.
 - **[Patrick Cabral](https://www.designboom.com/art/patrick-cabral-endangered-species-papercut-05-16-2017/)** – layered paper cutwork. Different style, same obsession.
 
 
@@ -52,6 +52,7 @@ Measurements. Material tests. Glue disasters. Little discoveries.
 - Advanced Papercraft Techniques: [Domestika Designing with Paper](https://www.domestika.org/en/courses/233-advanced-papercraft-techniques-designing-with-paper) 
 - Feather Library: [featherbase.info ](https://www.featherbase.info/en/home)
 - Still seat of pants experimental XD blender script to automate notch and kets for model making [JointForge ](https://github.com/NatalieC001/JointForge)
+- Paper feather cutting tecqnique https://www.youtube.com/watch?v=O3CLUGTOR0k
 
 ## Why GitHub
 
