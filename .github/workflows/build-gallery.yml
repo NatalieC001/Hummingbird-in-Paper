@@ -331,7 +331,7 @@ jobs:
                   for (let i = 0; i < lines.length; i++) {
                     const line = lines[i];
                     // Check if line starts with a filename pattern (has . or starts with DIR_)
-                    const colonIndex = line.indexOf(':');
+                    const colonIndex = line.indexOf('|'); // split with | not colons which mess up html
                     const isNewEntry = colonIndex > 0 && (
                       line.substring(0, colonIndex).includes('.') || 
                       line.substring(0, colonIndex).startsWith('DIR_')
