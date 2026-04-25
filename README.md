@@ -49,7 +49,8 @@ Measurements. Material tests. Glue disasters. Little discoveries.
 
 ## Resources
 
--Advanced Papercraft Techniques: Designing with Paper [https://www.domestika.org/](https://www.domestika.org/en/courses/233-advanced-papercraft-techniques-designing-with-paper)
+-Advanced Papercraft Techniques: Designing with Paper https://www.domestika.org/en/courses/233-advanced-papercraft-techniques-designing-with-paper
+-Feather Library: featherbase.info https://www.featherbase.info/en/home
 
 ## Why GitHub
 
