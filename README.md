@@ -44,42 +44,6 @@ Measurements. Material tests. Glue disasters. Little discoveries.
 - **Patrick Cabral** – layered paper cutwork. Different style, same obsession.
 https://www.reddit.com/r/hummingbirds/comments/1mw0bxv/hummingbird_feet_macro_shots/?solution=129d6221471cddbd129d6221471cddbd&js_challenge=1&token=bbbe4bf1c9a2b5160829c4be34da58612f1eacbc42c0bceada71c1e88e95f52e&jsc_orig_r=
 
----
-
-## Recent discoveries
-
-**2026-04-24**
-Tried scoring the feather veins with a dull x-acto instead of a sharp one. Counterintuitive but works – gives a soft crease instead of a cut. Write that down.
-
-**2026-04-20**
-JointForge boolean failed on a curved split plane. Fixed by manually cleaning non-manifold edges on the source mesh. The mesh was dirty. My fault, not the plugin's.
-
-**2026-04-15**
-Discovered that Cricut's "cardstock" setting at double pressure cuts through 65lb paper perfectly but destroys 100lb. Three ruined feather sheets before I learned.
-
----
-
-## Failures
-
-- The first armature printed at 0.1mm layer height. Beautiful but brittle. Snapped at the neck joint during test assembly.
-- Paper wings without internal support flap too much. Not in a good way.
-- Tried to rush the tail feathers. Rushed things look rushed.
-
----
-
-## Solutions that worked
-
-- **Internal armature gets printed at 0.24mm.** Strength over detail when nobody sees it.
-- **Paper wings now have a hidden wire spine.** Not traditional papercraft, but the bird needs to hold its pose.
-- **JointForge's gap setting at 0.2mm** – tight enough that glue isn't required, loose enough that parts seat without force.
-
----
-
-## Where it stands right now
-
-Body: complete. Wings: third version, feels close. Tail: not started. Armature: printed and assembled with JointForge keys. Paper layer 1 of 4 is cut.
-
-It looks like something. Not yet a hummingbird. Getting there.
 
 ---
 
