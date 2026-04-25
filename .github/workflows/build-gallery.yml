@@ -261,7 +261,7 @@ jobs:
           <body>
             <div class="container">
               <header>
-                <h1>🐦 Hummingbird in Paper</h1>
+                <h1>Hummingbird in Paper</h1>
                 <div class="subhead">A field notebook tracing the intersection of traditional papercraft, 3D printing, AI, and Blender automation.</div>
               </header>
               
@@ -416,20 +416,20 @@ jobs:
               
               function getFolderDisplayName(folderName) {
                 const nameMap = {
-                  'reference_images': '📸 Reference & Anatomy Studies',
-                  'materials': '🎨 Materials & Painting Tests',
-                  'paper_cutting': '✂️ Templates & Tracings',
-                  'blender_plugin': '🧩 Blender Plugin',
-                  'progress_photos': '📸 Progress & Discoveries',
-                  'failures': '💥 Studies in What Falls Away',
-                  'armature': '🔧 The Armature Beneath',
-                  'paper_tests': '📄 On Paper & Patience',
-                  'templates': '✂️ Templates & Tracings',
-                  'inspirations': '✨ Artists Who Guide the Hand',
-                  'discoveries': '💡 Moments of Clarity',
-                  'solutions': '✅ What Took Flight'
+                  'reference_images': 'Reference & Anatomy Studies',
+                  'materials': 'Materials & Painting Tests',
+                  'paper_cutting': 'Paper Cutting',
+                  'blender_plugin': 'Blender Plugin',
+                  'progress_photos': 'Progress & Discoveries',
+                  'failures': 'Studies in What Falls Away',
+                  'armature': 'The Armature Beneath',
+                  'paper_tests': 'On Paper & Patience',
+                  'templates': 'Templates & Tracings',
+                  'inspirations': 'Artists Who Guide the Hand',
+                  'discoveries': 'Moments of Clarity',
+                  'solutions': 'What Took Flight'
                 };
-                return nameMap[folderName] || `📔 ${folderName.replace(/_/g, ' ')}`;
+                return nameMap[folderName] || folderName.replace(/_/g, ' ');
               }
               
               async function buildGallery() {
@@ -441,7 +441,7 @@ jobs:
                 if (folders.length === 0) {
                   container.innerHTML = `
                     <div class="empty-album" style="margin: 60px auto; max-width: 600px;">
-                      <p>📭 No albums yet — like a new notebook, waiting for sketches.</p>
+                      <p>No albums yet — like a new notebook, waiting for sketches.</p>
                       <p style="margin-top: 20px; font-size: 0.8rem;">Add folders inside <code style="background:#e8e0d4; padding:2px 6px; border-radius:4px;">gallery/</code> with images and a description.txt</p>
                     </div>
                   `;
@@ -456,22 +456,9 @@ jobs:
                   const albumDiv = document.createElement('div');
                   albumDiv.className = 'album';
                   
-                  const imageCount = mediaItems.filter(m => !m.isVideo).length;
-                  const videoCount = mediaItems.filter(m => m.isVideo).length;
-                  
-                  let countText = `${mediaItems.length} ${mediaItems.length === 1 ? 'entry' : 'entries'}`;
-                  if (imageCount > 0 && videoCount > 0) {
-                    countText = `${imageCount} photograph${imageCount !== 1 ? 's' : ''} + ${videoCount} video${videoCount !== 1 ? 's' : ''}`;
-                  } else if (videoCount > 0) {
-                    countText = `${videoCount} video${videoCount !== 1 ? 's' : ''}`;
-                  } else {
-                    countText = `${imageCount} image${imageCount !== 1 ? 's' : ''}`;
-                  }
-                  
                   const title = getFolderDisplayName(folder);
                   albumDiv.innerHTML = `
                     <h2>${title}</h2>
-                    <div class="album-meta">${countText}</div>
                     <div class="gallery-grid" id="grid-${folder.replace(/[^a-zA-Z0-9]/g, '-')}"></div>
                   `;
                   
