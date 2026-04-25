@@ -15,7 +15,6 @@ DIR_blender_plugin| The blender tools I created along the way - As they say nece
 DIR_paper_cutting| These galleries show the physical testing phase. Notice how different paper weights fold and bend. The physical pieces shown here were cut using the digital paths you can find below in the Templates section.
 DIR_templates| Here are some initial thoughts on the wings, though I’m waiting to print the body before finalizing the design. After practicing with different materials and cutting techniques, I’ve developed this basic layout for the primary and secondary feather sets. Further notes and material tests can be found in the paper-cutting folder. <a href="https://www.featherbase.info/en/home" target="_blank"> featherBase.info</a>
 DIR_embossing_tools| Looking forward: To achieve realistic feather textures, I plan to design and 3D print custom embossing tools in Blender. These will allow me to press the cut paper into shape, mimicking the natural curve of real feathers.
-DIR_oopsies| All of those moments that... well, happen...
 00_Hero_Blender.png| A stylized rendering of the digital mesh used as the structural foundation for the physical papercraft.
 DentalTools.png| Dental tools are super useful for paper crafting and just about everything else!
 Pasted image 20260423142520.png| https://www.youtube.com/watch?v=O3CLUGTOR0k
