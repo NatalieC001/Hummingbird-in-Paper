@@ -19,3 +19,4 @@ DIR_embossing_tools: Looking forward: To achieve realistic feather textures, I p
 00_Hero_Blender.png: A stylized rendering of the digital mesh used as the structural foundation for the physical papercraft.
 DentalTools.png: Dental tools are super useful for paper crafting and just about everything else!
 Pasted image 20260423142520.png: <a href="https://www.reddit.com/r/hummingbirds/" target="_blank">Reddit</a> - A great reference site and super nice community!
+HummingbirdScene.png: DisplayConcepts
