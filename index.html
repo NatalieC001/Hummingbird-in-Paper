@@ -401,14 +401,17 @@
     function getFolderDisplayName(folderName) {
       const nameMap = {
         'reference_images': 'Reference & Anatomy Studies',
+        '3d_modeling': '3D Base Modeling',
+        'printing_failures': '3D Printing Failures',
+        'blender_plugin': 'Blender Plugin: JointForge',
+        'templates': 'Templates & Tracings',
+        'paper_cutting': 'Paper Cutting & Assembly',
+        'embossing_tools': '3D Printed Tooling & Embossing',
         'materials': 'Materials & Painting Tests',
-        'paper_cutting': 'Paper Cutting',
-        'blender_plugin': 'Blender Plugin',
         'progress_photos': 'Progress & Discoveries',
         'failures': 'Studies in What Falls Away',
         'armature': 'The Armature Beneath',
         'paper_tests': 'On Paper & Patience',
-        'templates': 'Templates & Tracings',
         'inspirations': 'Artists Who Guide the Hand',
         'discoveries': 'Moments of Clarity',
         'solutions': 'What Took Flight'
@@ -424,10 +427,13 @@
       
       const folderOrder = [
         'reference_images',
-        'materials',
+        '3d_modeling',
+        'printing_failures',
         'blender_plugin',
-        'paper_cutting',
         'templates',
+        'paper_cutting',
+        'embossing_tools',
+        'materials',
         'progress_photos',
         'armature',
         'failures'
