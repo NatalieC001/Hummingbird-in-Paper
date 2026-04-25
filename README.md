@@ -51,6 +51,7 @@ Measurements. Material tests. Glue disasters. Little discoveries.
 
 - Advanced Papercraft Techniques: [Domestika Designing with Paper](https://www.domestika.org/en/courses/233-advanced-papercraft-techniques-designing-with-paper) 
 - Feather Library: [featherbase.info ](https://www.featherbase.info/en/home)
+- Still seat of pants experimental XD blender script to automate notch and kets for model making [JointForge ](https://github.com/NatalieC001/JointForge)
 
 ## Why GitHub
 
