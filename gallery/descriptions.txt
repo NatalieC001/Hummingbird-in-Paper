@@ -10,7 +10,6 @@ Pasted image 20260423142537.png: Testing the fold mechanics - this version worke
 Pasted image 20260423143324.png: Comparison between first prototype (left) and second (right)
 00_Hero_Python.png: A concept sketch mapping the logic behind our custom <a href="https://github.com/NatalieC001/Hummingbird-in-Paper/tree/main/jointforge" target="_blank">JointForge Blender plugin</a>. This tool automatically splits oversized armatures to fit standard printing beds with snap-fit joints.
 
-
 DIR_3d_modeling: The foundation of the project begins in Blender. Here, the overall shape and structure of the hummingbird are digitally sculpted to form a solid base for the papercraft.
 DIR_printing_failures: Translating a digital model to the physical world rarely works perfectly the first time. Early attempts to 3D print the full model revealed limitations, primarily our Bambu A1 Mini's small build plate.
 DIR_blender_plugin: Faced with build plate limitations, I created 'JointForge', a custom Blender plugin. This tool automatically separates the large 3D model into smaller component parts with male and female keys, allowing a large armature to be printed on a small plate and easily slotted together.
