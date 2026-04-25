@@ -144,39 +144,76 @@
       justify-content: center;
       align-items: center;
       cursor: pointer;
-      flex-direction: column;
     }
     
-    .lightbox-content {
+    .lightbox-container {
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      flex-direction: row;
+      width: 90vw;
+      max-width: 1400px;
+      height: 85vh;
+      background: rgba(20, 15, 10, 0.95);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: default;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    
+    .lightbox-image-area {
+      flex: 1;
+      display: flex;
       justify-content: center;
-      max-width: 90%;
-      max-height: 85vh;
+      align-items: center;
+      background: #0a0a0a;
+      padding: 20px;
+      min-width: 0;
     }
     
     .lightbox-media {
       max-width: 100%;
-      max-height: 65vh;
+      max-height: 100%;
       object-fit: contain;
       border-radius: 8px;
-      box-shadow: 0 0 40px rgba(0,0,0,0.3);
+    }
+    
+    .lightbox-text-area {
+      width: 40%;
+      min-width: 280px;
+      max-width: 500px;
+      background: #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .lightbox-text-header {
+      padding: 20px 20px 10px 20px;
+      border-bottom: 1px solid #333;
+    }
+    
+    .lightbox-text-header h3 {
+      color: #88cc88;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    
+    .lightbox-text-header .filename {
+      color: #aaa;
+      font-size: 0.8rem;
+      font-family: monospace;
+      word-break: break-all;
     }
     
     .lightbox-caption {
-      margin-top: 20px;
-      background: rgba(0,0,0,0.85);
-      color: white;
-      padding: 15px 25px;
-      border-radius: 12px;
-      max-width: 90%;
-      text-align: center;
-      font-size: 1rem;
-      line-height: 1.5;
-      pointer-events: auto;
+      flex: 1;
       overflow-y: auto;
-      max-height: 20vh;
+      padding: 20px;
+      color: #e0e0e0;
+      font-size: 1rem;
+      line-height: 1.6;
     }
     
     .lightbox-caption a {
@@ -188,18 +225,42 @@
       text-decoration: underline;
     }
     
+    .lightbox-caption::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .lightbox-caption::-webkit-scrollbar-track {
+      background: #2a2a2a;
+      border-radius: 3px;
+    }
+    
+    .lightbox-caption::-webkit-scrollbar-thumb {
+      background: #555;
+      border-radius: 3px;
+    }
+    
+    .lightbox-caption::-webkit-scrollbar-thumb:hover {
+      background: #777;
+    }
+    
     .close-hint {
       position: fixed;
-      top: 25px;
-      right: 25px;
-      color: rgba(255,255,255,0.7);
+      top: 20px;
+      right: 30px;
+      color: rgba(255,255,255,0.6);
       background: rgba(0,0,0,0.5);
-      padding: 8px 18px;
+      padding: 8px 16px;
       border-radius: 40px;
       font-size: 0.8rem;
-      pointer-events: none;
       font-family: monospace;
+      cursor: pointer;
       z-index: 10001;
+      transition: background 0.2s;
+    }
+    
+    .close-hint:hover {
+      background: rgba(0,0,0,0.8);
+      color: white;
     }
     
     footer {
@@ -219,6 +280,32 @@
       text-decoration: underline;
     }
     
+    @media (max-width: 800px) {
+      .lightbox-container {
+        flex-direction: column;
+        width: 95vw;
+        height: 90vh;
+      }
+      
+      .lightbox-text-area {
+        width: 100%;
+        max-width: none;
+        height: 40%;
+        min-height: 200px;
+      }
+      
+      .lightbox-image-area {
+        height: 60%;
+      }
+      
+      .close-hint {
+        top: 10px;
+        right: 15px;
+        font-size: 0.7rem;
+        padding: 5px 12px;
+      }
+    }
+    
     @media (max-width: 700px) {
       body { padding: 15px; }
       .album { padding: 20px; }
@@ -226,8 +313,6 @@
       .album h2 { font-size: 1.4rem; }
       .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
       .gallery-item img, .gallery-item video { height: 150px; }
-      .lightbox-caption { font-size: 0.85rem; padding: 10px 20px; max-height: 25vh; }
-      .lightbox-media { max-height: 55vh; }
     }
   </style>
 </head>
@@ -246,11 +331,19 @@
   </div>
   
   <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-    <div class="close-hint">Click anywhere to close — ✕</div>
-    <div class="lightbox-content">
-      <img id="lightbox-image" class="lightbox-media" style="display:none;">
-      <video id="lightbox-video" class="lightbox-media" controls style="display:none;"></video>
-      <div id="lightbox-caption" class="lightbox-caption"></div>
+    <div class="close-hint" onclick="closeLightbox()">✕ Close (Esc)</div>
+    <div class="lightbox-container" onclick="event.stopPropagation()">
+      <div class="lightbox-image-area">
+        <img id="lightbox-image" class="lightbox-media" style="display:none;">
+        <video id="lightbox-video" class="lightbox-media" controls style="display:none;"></video>
+      </div>
+      <div class="lightbox-text-area">
+        <div class="lightbox-text-header">
+          <h3>📝 Description</h3>
+          <div class="filename" id="lightbox-filename"></div>
+        </div>
+        <div id="lightbox-caption" class="lightbox-caption"></div>
+      </div>
     </div>
   </div>
   
@@ -266,9 +359,11 @@
     const lightboxImg = document.getElementById('lightbox-image');
     const lightboxVideo = document.getElementById('lightbox-video');
     const lightboxCaption = document.getElementById('lightbox-caption');
+    const lightboxFilename = document.getElementById('lightbox-filename');
     
-    function openLightbox(url, isVideo, description) {
+    function openLightbox(url, isVideo, description, filename) {
       lightboxCaption.innerHTML = description || 'No description available';
+      lightboxFilename.textContent = filename || '';
       
       if (isVideo) {
         lightboxImg.style.display = 'none';
@@ -293,8 +388,15 @@
       lightboxVideo.src = '';
       lightboxImg.src = '';
       lightboxCaption.innerHTML = '';
+      lightboxFilename.textContent = '';
       document.body.style.overflow = 'auto';
     }
+    
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && lightbox.style.display === 'flex') {
+        closeLightbox();
+      }
+    });
     
     async function fetchAlbumFolders() {
       try {
@@ -440,7 +542,7 @@
           mediaItems.forEach(media => {
             const item = document.createElement('div');
             item.className = 'gallery-item';
-            item.onclick = () => openLightbox(media.url, media.isVideo, media.description);
+            item.onclick = () => openLightbox(media.url, media.isVideo, media.description, media.name);
             
             if (media.isVideo) {
               const video = document.createElement('video');
