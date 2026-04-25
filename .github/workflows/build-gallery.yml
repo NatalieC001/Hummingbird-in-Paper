@@ -390,14 +390,14 @@ jobs:
               
               function getFolderDisplayName(folderName) {
                 const map = {
-                  'WorkFlow': 'WorkFlow',
                   '3d_modeling': '3D Modeling',
                   'blender_plugin': 'Blender Plugin',
                   'materials': 'Materials',
                   'paper_cutting': 'Paper Cutting',
                   'templates': 'Templates',
                   'progress_photos': 'Progress Photos',
-                  'reference_images': 'Reference Images'
+                  'reference_images': 'Reference Images',
+                  'WorkFlow': 'WorkFlow'
                 };
                 return map[folderName] || folderName;
               }
