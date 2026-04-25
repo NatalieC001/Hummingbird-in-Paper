@@ -151,6 +151,12 @@ jobs:
                 color: #5a4b3d; letter-spacing: 0.2px; font-weight: 500;
               }
               
+              .album-description {
+                font-family: 'Zalando Sans', sans-serif; font-size: 0.95rem;
+                color: #5a4b3d; line-height: 1.5; margin-bottom: 25px;
+                padding-bottom: 12px; border-bottom: 1px dashed #c8b9a1;
+              }
+              
               .empty-album {
                 background: rgba(250,248,242,0.5); padding: 50px; text-align: center;
                 color: #9a8a75; border: 1px dashed #c8b9a1; font-size: 0.9rem;
@@ -436,7 +442,26 @@ jobs:
                 container.innerHTML = '<div style="text-align:center; padding:60px; font-family: Zalando Sans, sans-serif;">Loading field notes...</div>';
                 
                 await fetchDescriptions();
-                const folders = await fetchAlbumFolders();
+                let folders = await fetchAlbumFolders();
+                
+                const folderOrder = [
+                  'reference_images',
+                  'materials',
+                  'blender_plugin',
+                  'paper_cutting',
+                  'templates',
+                  'progress_photos',
+                  'armature',
+                  'failures'
+                ];
+                
+                folders.sort((a, b) => {
+                  let indexA = folderOrder.indexOf(a);
+                  let indexB = folderOrder.indexOf(b);
+                  if (indexA === -1) indexA = 999;
+                  if (indexB === -1) indexB = 999;
+                  return indexA - indexB;
+                });
                 
                 if (folders.length === 0) {
                   container.innerHTML = `
@@ -457,8 +482,12 @@ jobs:
                   albumDiv.className = 'album';
                   
                   const title = getFolderDisplayName(folder);
+                  const folderDesc = globalDescriptions[`DIR_${folder}`] || '';
+                  const descHtml = folderDesc ? `<div class="album-description">${folderDesc}</div>` : '';
+                  
                   albumDiv.innerHTML = `
                     <h2>${title}</h2>
+                    ${descHtml}
                     <div class="gallery-grid" id="grid-${folder.replace(/[^a-zA-Z0-9]/g, '-')}"></div>
                   `;
                   

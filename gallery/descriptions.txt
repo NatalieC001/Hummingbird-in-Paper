@@ -10,3 +10,8 @@ Pasted image 20260423142520.png: Progress shot - wing structure taking shape
 Pasted image 20260423142537.png: Testing the fold mechanics - this version worked!
 Pasted image 20260423143324.png: Comparison between first prototype (left) and second (right)
 JointForge_Mockup.png: A concept sketch mapping the logic behind our custom <a href="https://github.com/NatalieC001/Hummingbird-in-Paper/tree/main/jointforge" target="_blank">JointForge Blender plugin</a>. This tool automatically splits oversized armatures to fit standard printing beds with snap-fit joints.
+
+
+DIR_paper_cutting: These galleries show the physical testing phase. Notice how different paper weights fold and bend. The physical pieces shown here were cut using the digital paths you can find below in the Templates section.
+DIR_templates: Here are the digital vector paths and shapes that are sent to the cutting machine. Compare these paths to the physical cuts in the gallery above!
+DIR_blender_plugin: This section details the creation of JointForge, our custom algorithm for splitting 3D models into printable parts.
