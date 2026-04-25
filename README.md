@@ -39,10 +39,10 @@ Measurements. Material tests. Glue disasters. Little discoveries.
 
 ## Inspirations
 
-- **Calvin Nicholls** – paper sculpture that looks alive. The standard.
-- **Johan Scherft** – his bird models taught me what's possible with just paper and patience.
-- **Patrick Cabral** – layered paper cutwork. Different style, same obsession.
-https://www.reddit.com/r/hummingbirds/comments/1mw0bxv/hummingbird_feet_macro_shots/?solution=129d6221471cddbd129d6221471cddbd&js_challenge=1&token=bbbe4bf1c9a2b5160829c4be34da58612f1eacbc42c0bceada71c1e88e95f52e&jsc_orig_r=
+- **[Calvin Nicholls](https://calvinnicholls.com/)** – paper sculpture.
+- **Johan Scherft** – paper sculpture with a hint of pepikura and a lot of magic.
+- **[Patrick Cabral](https://www.designboom.com/art/patrick-cabral-endangered-species-papercut-05-16-2017/)** – layered paper cutwork. Different style, same obsession.
+
 
 
 ---
