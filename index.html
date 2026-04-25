@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hummingbird in Paper - Process Gallery</title>
+  <!-- Google Fonts: Bricolage Grotesque for headings, Zalando Sans for body text -->
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=Zalando+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -12,10 +14,11 @@
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      background: #f5f0e8;
+      /* Modern sans-serif body font - Zalando Sans */
+      font-family: 'Zalando Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #faf7f0;  /* Aged paper background */
       padding: 30px 20px;
-      color: #2c2820;
+      color: #2c2a24;
     }
     
     .container {
@@ -26,44 +29,58 @@
     header {
       text-align: center;
       margin-bottom: 50px;
+      border-bottom: 2px solid #e2d8c8;
+      padding-bottom: 25px;
     }
     
     h1 {
-      font-size: 2.5rem;
-      color: #2d5a2c;
-      font-weight: 500;
-      letter-spacing: -0.5px;
+      /* Distinctive sans-serif for main title - Bricolage Grotesque */
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 4rem;
+      font-weight: 700;
+      color: #3a5c3a;
+      letter-spacing: -0.02em;
+      margin-bottom: 5px;
     }
     
     .subhead {
-      color: #7a6b55;
-      font-size: 1.1rem;
-      margin-top: 10px;
+      font-family: 'Zalando Sans', sans-serif;
+      font-weight: 300;
       font-style: italic;
+      color: #7a6b58;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
     }
     
     .album {
-      background: white;
-      border-radius: 20px;
+      background: #ffffffdd;
+      backdrop-filter: blur(2px);
+      border-radius: 16px;
       padding: 30px;
       margin-bottom: 40px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      border: 1px solid #e2d8cc;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border: 1px solid #e8dec8;
     }
     
     .album h2 {
-      font-size: 1.8rem;
-      font-weight: 500;
-      color: #4a3e2c;
+      /* Bricolage Grotesque for album titles too */
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: #5a4a34;
       margin-bottom: 8px;
+      letter-spacing: -0.01em;
     }
     
     .album-meta {
-      color: #9b8b74;
-      font-size: 0.85rem;
+      font-family: 'Zalando Sans', sans-serif;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #9b8a6e;
       margin-bottom: 25px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #efe5d8;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e8dec8;
     }
     
     .gallery-grid {
@@ -73,18 +90,19 @@
     }
     
     .gallery-item {
-      background: #faf8f4;
+      background: #ffffff;
       border-radius: 12px;
       overflow: hidden;
       cursor: pointer;
       transition: all 0.25s ease;
-      border: 1px solid #e8dfd3;
+      border: 1px solid #e2d5c0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
     
     .gallery-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      border-color: #c4b49c;
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      border-color: #b8a88a;
     }
     
     .gallery-item img, .gallery-item video {
@@ -92,7 +110,7 @@
       height: 200px;
       object-fit: cover;
       display: block;
-      background: #e8e0d4;
+      background: #ece2d4;
     }
     
     .gallery-item video {
@@ -101,37 +119,40 @@
     
     .gallery-item-caption {
       padding: 12px;
-      font-size: 0.85rem;
-      color: #4a3e2c;
+      font-family: 'Zalando Sans', sans-serif;
+      font-size: 0.8rem;
       background: white;
-      border-top: 1px solid #efe5d8;
+      border-top: 1px solid #efe3d2;
       line-height: 1.4;
     }
     
     .caption-title {
+      font-family: 'Bricolage Grotesque', sans-serif;
       font-weight: 600;
-      color: #2d5a2c;
+      font-size: 0.9rem;
+      color: #5a4a34;
       margin-bottom: 5px;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
     
     .caption-text {
-      font-size: 0.85rem;
-      color: #6b5d4b;
+      font-family: 'Zalando Sans', sans-serif;
+      font-size: 0.75rem;
+      color: #6b5d4a;
+      letter-spacing: 0.2px;
     }
     
     .empty-album {
-      background: #faf8f4;
+      font-family: 'Zalando Sans', sans-serif;
+      background: #faf6ef;
       padding: 50px;
       text-align: center;
-      color: #b8a88c;
+      color: #b8a88a;
       border-radius: 16px;
-      border: 2px dashed #e2d8cc;
-      font-size: 1rem;
+      border: 1px dashed #dac8ac;
+      font-size: 0.9rem;
     }
     
+    /* Lightbox Styles */
     .lightbox {
       display: none;
       position: fixed;
@@ -139,7 +160,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.95);
+      background: rgba(30, 25, 20, 0.97);
       z-index: 10000;
       justify-content: center;
       align-items: center;
@@ -152,11 +173,12 @@
       width: 90vw;
       max-width: 1400px;
       height: 85vh;
-      background: rgba(20, 15, 10, 0.95);
-      border-radius: 16px;
+      background: #fffef7;
+      border-radius: 20px;
       overflow: hidden;
       cursor: default;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      box-shadow: 0 25px 45px rgba(0,0,0,0.3);
+      border: 1px solid #e8dcc8;
     }
     
     .lightbox-image-area {
@@ -164,7 +186,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #0a0a0a;
+      background: #fcf9f2;
       padding: 20px;
       min-width: 0;
     }
@@ -173,109 +195,113 @@
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
-      border-radius: 8px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     
     .lightbox-text-area {
       width: 40%;
       min-width: 280px;
       max-width: 500px;
-      background: #1a1a1a;
+      background: #ffffff;
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      border-left: 1px solid #ede3d2;
     }
     
     .lightbox-text-header {
-      padding: 20px 20px 10px 20px;
-      border-bottom: 1px solid #333;
+      padding: 24px 24px 16px 24px;
+      border-bottom: 1px solid #ede3d2;
     }
     
     .lightbox-text-header h3 {
-      color: #88cc88;
-      font-size: 0.9rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #5a4a34;
       margin-bottom: 8px;
+      letter-spacing: -0.01em;
     }
     
     .lightbox-text-header .filename {
-      color: #aaa;
-      font-size: 0.8rem;
-      font-family: monospace;
+      font-family: 'Zalando Sans', monospace;
+      font-size: 0.7rem;
+      color: #9b8a6e;
+      background: #faf6ef;
+      padding: 4px 8px;
+      border-radius: 20px;
+      display: inline-block;
       word-break: break-all;
     }
     
     .lightbox-caption {
       flex: 1;
       overflow-y: auto;
-      padding: 20px;
-      color: #e0e0e0;
-      font-size: 1rem;
-      line-height: 1.6;
+      padding: 20px 24px;
+      font-family: 'Zalando Sans', sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: #2c2a24;
     }
     
-    .lightbox-caption a {
-      color: #88cc88;
-      text-decoration: none;
-    }
-    
-    .lightbox-caption a:hover {
-      text-decoration: underline;
-    }
-    
+    /* Custom scrollbar */
     .lightbox-caption::-webkit-scrollbar {
       width: 6px;
     }
-    
     .lightbox-caption::-webkit-scrollbar-track {
-      background: #2a2a2a;
+      background: #ede3d2;
       border-radius: 3px;
     }
-    
     .lightbox-caption::-webkit-scrollbar-thumb {
-      background: #555;
+      background: #c8b694;
       border-radius: 3px;
     }
     
-    .lightbox-caption::-webkit-scrollbar-thumb:hover {
-      background: #777;
+    .lightbox-caption a {
+      color: #6b8c5c;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
+    }
+    .lightbox-caption a:hover {
+      color: #3a5c3a;
     }
     
     .close-hint {
       position: fixed;
       top: 20px;
       right: 30px;
-      color: rgba(255,255,255,0.6);
-      background: rgba(0,0,0,0.5);
-      padding: 8px 16px;
+      font-family: 'Zalando Sans', monospace;
+      font-size: 0.75rem;
+      color: #fffef7;
+      background: rgba(60, 50, 40, 0.6);
+      padding: 6px 14px;
       border-radius: 40px;
-      font-size: 0.8rem;
-      font-family: monospace;
+      backdrop-filter: blur(4px);
       cursor: pointer;
       z-index: 10001;
-      transition: background 0.2s;
+      transition: 0.2s;
+      letter-spacing: 0.5px;
     }
-    
     .close-hint:hover {
-      background: rgba(0,0,0,0.8);
+      background: rgba(60, 50, 40, 0.9);
       color: white;
     }
     
     footer {
       text-align: center;
       margin-top: 50px;
-      padding-top: 30px;
-      border-top: 1px solid #e2d8cc;
-      color: #9b8b74;
+      padding-top: 25px;
+      border-top: 1px solid #e2d5c0;
+      font-family: 'Zalando Sans', sans-serif;
+      font-size: 0.75rem;
+      color: #9b8a6e;
     }
-    
     footer a {
-      color: #5d7a4c;
+      color: #6b8c5c;
       text-decoration: none;
     }
-    
     footer a:hover {
       text-decoration: underline;
     }
@@ -286,31 +312,22 @@
         width: 95vw;
         height: 90vh;
       }
-      
       .lightbox-text-area {
         width: 100%;
         max-width: none;
         height: 40%;
         min-height: 200px;
       }
-      
       .lightbox-image-area {
         height: 60%;
       }
-      
-      .close-hint {
-        top: 10px;
-        right: 15px;
-        font-size: 0.7rem;
-        padding: 5px 12px;
-      }
+      h1 { font-size: 3rem; }
+      .album h2 { font-size: 2rem; }
     }
     
     @media (max-width: 700px) {
       body { padding: 15px; }
       .album { padding: 20px; }
-      h1 { font-size: 1.8rem; }
-      .album h2 { font-size: 1.4rem; }
       .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
       .gallery-item img, .gallery-item video { height: 150px; }
     }
@@ -320,13 +337,13 @@
   <div class="container">
     <header>
       <h1>🐦 Hummingbird in Paper</h1>
-      <div class="subhead">Process diary — progress, failures, discoveries, and solutions</div>
+      <div class="subhead">A process diary — feather, paper, and the shape of discovery</div>
     </header>
     
     <div id="gallery-container"></div>
     
     <footer>
-      📔 <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — a diary. No downloads. Just the process.
+      📜 <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — a living notebook. Descriptions & images change as the work grows.
     </footer>
   </div>
   
@@ -339,7 +356,7 @@
       </div>
       <div class="lightbox-text-area">
         <div class="lightbox-text-header">
-          <h3>📝 Description</h3>
+          <h3>In her own words</h3>
           <div class="filename" id="lightbox-filename"></div>
         </div>
         <div id="lightbox-caption" class="lightbox-caption"></div>
@@ -477,29 +494,28 @@
     
     function getFolderDisplayName(folderName) {
       const nameMap = {
-        'progress_photos': '📸 Progress Photos',
-        'failures': '💥 Failures & What Went Wrong',
-        'armature': '🔧 Armature & JointForge',
-        'paper_tests': '📄 Paper Cutting Tests',
-        'templates': '✂️ Cutting Templates',
-        'inspirations': '✨ Artists Who Inspire Me',
-        'discoveries': '💡 Discoveries Along the Way',
-        'solutions': '✅ Solutions That Worked'
+        'progress_photos': '📸 Progress & Discoveries',
+        'failures': '💥 Studies in What Falls Away',
+        'armature': '🔧 The Armature Beneath',
+        'paper_tests': '📄 On Paper & Patience',
+        'templates': '✂️ Templates & Tracings',
+        'inspirations': '✨ Artists Who Guide the Hand',
+        'discoveries': '💡 Moments of Clarity',
+        'solutions': '✅ What Took Flight'
       };
-      return nameMap[folderName] || `📁 ${folderName.replace(/_/g, ' ')}`;
+      return nameMap[folderName] || `📔 ${folderName.replace(/_/g, ' ')}`;
     }
     
     async function buildGallery() {
-      container.innerHTML = '<div style="text-align:center; padding:60px;">Loading gallery...</div>';
+      container.innerHTML = '<div style="text-align:center; padding:60px; font-family: Zalando Sans, sans-serif;">Loading field notes...</div>';
       
       const folders = await fetchAlbumFolders();
       
       if (folders.length === 0) {
         container.innerHTML = `
           <div class="empty-album" style="margin: 60px auto; max-width: 600px;">
-            <p>📭 No photo albums found yet.</p>
-            <p style="margin-top: 20px; font-size: 0.9rem;">Create folders inside <code style="background:#e8e0d4; padding:2px 6px; border-radius:4px;">gallery/</code> and add your photos or videos.</p>
-            <p style="margin-top: 10px; font-size: 0.85rem;">Example: <code style="background:#e8e0d4; padding:2px 6px; border-radius:4px;">gallery/progress_photos/photo1.jpg</code></p>
+            <p>📭 No albums yet — like a new notebook, waiting for sketches.</p>
+            <p style="margin-top: 20px; font-size: 0.8rem;">Add folders inside <code style="background:#e8e0d4; padding:2px 6px; border-radius:4px;">gallery/</code> with images and a description.txt</p>
           </div>
         `;
         return;
@@ -516,13 +532,13 @@
         const imageCount = mediaItems.filter(m => !m.isVideo).length;
         const videoCount = mediaItems.filter(m => m.isVideo).length;
         
-        let countText = `${mediaItems.length} ${mediaItems.length === 1 ? 'item' : 'items'}`;
+        let countText = `${mediaItems.length} ${mediaItems.length === 1 ? 'entry' : 'entries'}`;
         if (imageCount > 0 && videoCount > 0) {
-          countText = `${imageCount} photo${imageCount !== 1 ? 's' : ''} + ${videoCount} video${videoCount !== 1 ? 's' : ''}`;
+          countText = `${imageCount} photograph${imageCount !== 1 ? 's' : ''} + ${videoCount} video${videoCount !== 1 ? 's' : ''}`;
         } else if (videoCount > 0) {
           countText = `${videoCount} video${videoCount !== 1 ? 's' : ''}`;
         } else {
-          countText = `${imageCount} photo${imageCount !== 1 ? 's' : ''}`;
+          countText = `${imageCount} image${imageCount !== 1 ? 's' : ''}`;
         }
         
         const title = getFolderDisplayName(folder);
@@ -537,7 +553,7 @@
         const gridContainer = albumDiv.querySelector('.gallery-grid');
         
         if (mediaItems.length === 0) {
-          gridContainer.innerHTML = '<div class="empty-album" style="grid-column:1/-1;">📭 No media in this album yet</div>';
+          gridContainer.innerHTML = '<div class="empty-album" style="grid-column:1/-1;">🍂 No media in this folder yet — waiting for your next experiment.</div>';
         } else {
           mediaItems.forEach(media => {
             const item = document.createElement('div');
@@ -558,7 +574,7 @@
               img.alt = media.name;
               img.loading = 'lazy';
               img.onerror = function() {
-                this.style.opacity = '0.3';
+                this.style.opacity = '0.5';
                 this.style.backgroundColor = '#e8e0d4';
               };
               item.appendChild(img);
@@ -574,13 +590,13 @@
             
             if (media.description) {
               caption.innerHTML = `
-                <div class="caption-title">📝 ${displayName}</div>
+                <div class="caption-title">${displayName}</div>
                 <div class="caption-text">${plainTextDescription.length > 80 ? plainTextDescription.substring(0, 77) + '...' : plainTextDescription}</div>
               `;
             } else {
               caption.innerHTML = `
-                <div class="caption-title">${media.isVideo ? '🎬' : '🖼️'} ${displayName}</div>
-                <div class="caption-text">Click to view</div>
+                <div class="caption-title">${media.isVideo ? 'Moving image' : 'Study page'}</div>
+                <div class="caption-text">Click to read the notes</div>
               `;
             }
             
