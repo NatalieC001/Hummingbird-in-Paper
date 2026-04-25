@@ -390,6 +390,7 @@ jobs:
               
               function getFolderDisplayName(folderName) {
                 const map = {
+                  'WorkFlow': 'WorkFlow',
                   '3d_modeling': '3D Modeling',
                   'blender_plugin': 'Blender Plugin',
                   'materials': 'Materials',
