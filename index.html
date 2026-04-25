@@ -248,7 +248,7 @@
     const lightboxCaption = document.getElementById('lightbox-caption');
     
     function openLightbox(url, isVideo, description) {
-      lightboxCaption.textContent = description || 'No description available';
+      lightboxCaption.innerHTML = description || 'No description available';
       
       if (isVideo) {
         lightboxImg.style.display = 'none';
@@ -272,7 +272,7 @@
       lightboxVideo.pause();
       lightboxVideo.src = '';
       lightboxImg.src = '';
-      lightboxCaption.textContent = '';
+      lightboxCaption.innerHTML = '';
       document.body.style.overflow = 'auto';
     }
     
@@ -448,10 +448,13 @@
             const fileName = media.name.replace(/\.[^/.]+$/, '');
             const displayName = fileName.length > 35 ? fileName.substring(0, 32) + '...' : fileName;
             
+            // Strip HTML tags for grid preview to keep it clean
+            const plainTextDescription = media.description.replace(/<[^>]*>/g, '');
+            
             if (media.description) {
               caption.innerHTML = `
                 <div class="caption-title">📝 ${displayName}</div>
-                <div class="caption-text">${media.description.length > 80 ? media.description.substring(0, 77) + '...' : media.description}</div>
+                <div class="caption-text">${plainTextDescription.length > 80 ? plainTextDescription.substring(0, 77) + '...' : plainTextDescription}</div>
               `;
             } else {
               caption.innerHTML = `
