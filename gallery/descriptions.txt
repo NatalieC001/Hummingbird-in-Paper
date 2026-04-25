@@ -17,3 +17,5 @@ DIR_blender_plugin: Faced with build plate limitations, I created 'JointForge', 
 DIR_paper_cutting: These galleries show the physical testing phase. Notice how different paper weights fold and bend. The physical pieces shown here were cut using the digital paths you can find below in the Templates section.
 DIR_templates: Here are the digital vector paths and shapes that are sent to the cutting machine. Compare these paths to the physical cuts in the gallery above!
 DIR_embossing_tools: Looking forward: To achieve realistic feather textures, I plan to design and 3D print custom embossing tools in Blender. These will allow me to press the cut paper into shape, mimicking the natural curve of real feathers.
+
+Base_Model_Mockup.png: A stylized rendering of the digital mesh used as the structural foundation for the physical papercraft.
