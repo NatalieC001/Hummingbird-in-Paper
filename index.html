@@ -349,16 +349,44 @@
         if (!response.ok) return;
         
         const text = await response.text();
-        text.split('\n').forEach(line => {
+        let currentFile = null;
+        let currentDesc = [];
+        
+        const lines = text.split(/\r?\n/);
+        
+        for (let i = 0; i < lines.length; i++) {
+          let line = lines[i];
+          
+          // Check if line starts with a pattern that looks like a filename (has extension and colon)
           const colonIndex = line.indexOf(':');
-          if (colonIndex > 0) {
-            const filename = line.substring(0, colonIndex).trim();
-            const description = line.substring(colonIndex + 1).trim();
-            if (filename && description) {
-              globalDescriptions[filename] = description;
-            }
+          const looksLikeFilename = colonIndex > 0 && 
+                                    (line.substring(0, colonIndex).includes('.') || 
+                                     line.substring(0, colonIndex).startsWith('DIR_'));
+          
+          if (looksLikeFilename && currentFile) {
+            // Save previous entry
+            globalDescriptions[currentFile] = currentDesc.join(' ').trim();
+            currentFile = null;
+            currentDesc = [];
           }
-        });
+          
+          if (looksLikeFilename) {
+            // Start new entry
+            currentFile = line.substring(0, colonIndex).trim();
+            const restOfLine = line.substring(colonIndex + 1).trim();
+            currentDesc = [restOfLine];
+          } else if (currentFile) {
+            // Append to current description
+            currentDesc.push(line.trim());
+          }
+        }
+        
+        // Save the last entry
+        if (currentFile) {
+          globalDescriptions[currentFile] = currentDesc.join(' ').trim();
+        }
+        
+        console.log('Loaded descriptions for:', Object.keys(globalDescriptions).length, 'files');
       } catch (error) {
         console.error('Could not fetch descriptions', error);
       }
@@ -389,7 +417,7 @@
             url: `${BASE_RAW}${folderName}/${item.name}`,
             downloadUrl: item.download_url,
             isVideo: isVideo,
-            description: globalDescriptions[item.name] || ''
+            description: globalDescriptions[item.name] || globalDescriptions[item.name.toLowerCase()] || ''
           };
         });
       } catch (error) {
@@ -513,7 +541,7 @@
             const fileName = media.name.replace(/\.[^/.]+$/, '');
             const displayName = fileName.length > 35 ? fileName.substring(0, 32) + '...' : fileName;
             
-            const plainTextDescription = media.description.replace(/<[^>]*>/g, '');
+            const plainTextDescription = media.description ? media.description.replace(/<[^>]*>/g, '') : '';
             
             if (media.description) {
               caption.innerHTML = `
