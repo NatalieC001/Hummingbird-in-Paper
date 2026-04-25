@@ -396,8 +396,7 @@ jobs:
                   'paper_cutting': 'Paper Cutting',
                   'templates': 'Templates',
                   'progress_photos': 'Progress Photos',
-                  'reference_images': 'Reference Images',
-                  'WorkFlow': 'WorkFlow'
+                  'reference_images': 'Reference Images'
                 };
                 return map[folderName] || folderName;
               }
