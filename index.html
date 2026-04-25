@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hummingbird in Paper - Process Gallery</title>
-  <!-- Google Fonts: Bricolage Grotesque for headings, Zalando Sans for body text -->
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=Zalando+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -12,7 +11,6 @@
     body {
       font-family: 'Zalando Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
       background-color: #eaddcb;
-      /* Mixed grid: large drafting squares and subtle noise dots */
       background-image: 
         linear-gradient(rgba(170, 155, 135, 0.3) 1px, transparent 1px),
         linear-gradient(90deg, rgba(170, 155, 135, 0.3) 1px, transparent 1px),
@@ -34,7 +32,7 @@
     h1 {
       font-family: 'Bricolage Grotesque', sans-serif;
       font-size: 4rem; font-weight: 700;
-      color: #4a3424; /* Deep oxidized copper / leather */
+      color: #4a3424;
       letter-spacing: -0.02em; margin-bottom: 5px;
       text-shadow: 1px 1px 0px rgba(255,255,255,0.4);
     }
@@ -52,7 +50,6 @@
       box-shadow: inset 0 0 40px rgba(210, 195, 175, 0.15), 0 5px 15px rgba(0,0,0,0.03);
       position: relative;
     }
-    /* Field drawing corner brackets for the high-tech/botanist feel */
     .album::before {
       content: ''; position: absolute;
       top: 5px; left: 5px; right: 5px; bottom: 5px;
@@ -78,7 +75,6 @@
     
     .gallery-item {
       background: #fdfcfa;
-      /* The pencil box / drafting border style */
       border: 1px solid #7a6d59;
       padding: 8px;
       cursor: pointer; transition: all 0.25s ease;
@@ -104,7 +100,6 @@
     .gallery-item img, .gallery-item video {
       width: 100%; height: 210px; object-fit: cover;
       display: block; background: #e0d5c1;
-      /* Slight sepia warmth */
       filter: sepia(0.15) contrast(1.05);
     }
     .gallery-item:hover img, .gallery-item:hover video {
@@ -115,7 +110,7 @@
     
     .gallery-item-caption {
       padding: 14px 4px 4px 4px; line-height: 1.4;
-      border-top: none; /* Flow directly like a sketch label */
+      border-top: none;
     }
     
     .caption-title {
@@ -140,12 +135,10 @@
       color: #9a8a75; border: 1px dashed #c8b9a1; font-size: 0.9rem;
     }
     
-    /* Lightbox Styles - Workbench/Lab view */
     .lightbox {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(22, 20, 18, 0.96); z-index: 10000;
       justify-content: center; align-items: center; cursor: pointer;
-      /* Subtle blueprint grid overlay in lightbox background */
       background-image: linear-gradient(rgba(100,140,160,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(100,140,160,0.05) 1px, transparent 1px);
       background-size: 40px 40px;
     }
@@ -189,7 +182,7 @@
     }
     
     .lightbox-text-header .filename {
-      font-family: monospace; font-size: 0.75rem; color: #4a5c60; /* blueprint spec blue */
+      font-family: monospace; font-size: 0.75rem; color: #4a5c60;
       background: #e0e4e6; padding: 4px 10px; border-radius: 2px;
       display: inline-block; word-break: break-all; border: 1px solid #bdc5c7;
       letter-spacing: 1px;
@@ -200,14 +193,13 @@
       font-family: 'Zalando Sans', sans-serif; font-size: 0.95rem; line-height: 1.7; color: #3a2a1c;
     }
     
-    /* Custom scrollbar - Drafting Brass */
     .lightbox-caption::-webkit-scrollbar { width: 8px; }
     .lightbox-caption::-webkit-scrollbar-track { background: #efebe1; border-left: 1px solid #e0d5c1; }
     .lightbox-caption::-webkit-scrollbar-thumb { background: #bda582; border-radius: 0; }
     .lightbox-caption::-webkit-scrollbar-thumb:hover { background: #968366; }
     
     .lightbox-caption a {
-      color: #7b4c3a; /* faded red/copper for links */
+      color: #7b4c3a;
       text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px;
     }
     .lightbox-caption a:hover { color: #8c2b1a; text-decoration-style: dashed; }
@@ -349,44 +341,37 @@
         if (!response.ok) return;
         
         const text = await response.text();
-        let currentFile = null;
-        let currentDesc = [];
         
+        // More robust parser: find lines that start with a filename pattern
         const lines = text.split(/\r?\n/);
+        let i = 0;
         
-        for (let i = 0; i < lines.length; i++) {
-          let line = lines[i];
+        while (i < lines.length) {
+          const line = lines[i];
+          // Match pattern: filename.ext: or DIR_something:
+          const match = line.match(/^([A-Za-z0-9_\-\.\s]+?(?:\.\w+)?|DIR_[A-Za-z0-9_]+):\s*(.*)$/);
           
-          // Check if line starts with a pattern that looks like a filename (has extension and colon)
-          const colonIndex = line.indexOf(':');
-          const looksLikeFilename = colonIndex > 0 && 
-                                    (line.substring(0, colonIndex).includes('.') || 
-                                     line.substring(0, colonIndex).startsWith('DIR_'));
-          
-          if (looksLikeFilename && currentFile) {
-            // Save previous entry
-            globalDescriptions[currentFile] = currentDesc.join(' ').trim();
-            currentFile = null;
-            currentDesc = [];
-          }
-          
-          if (looksLikeFilename) {
-            // Start new entry
-            currentFile = line.substring(0, colonIndex).trim();
-            const restOfLine = line.substring(colonIndex + 1).trim();
-            currentDesc = [restOfLine];
-          } else if (currentFile) {
-            // Append to current description
-            currentDesc.push(line.trim());
+          if (match) {
+            const filename = match[1].trim();
+            let description = match[2].trim();
+            
+            // Check if next lines continue this description (no filename pattern at start)
+            let j = i + 1;
+            while (j < lines.length && !lines[j].match(/^[A-Za-z0-9_\-\.\s]+?(?:\.\w+)?|DIR_[A-Za-z0-9_]+:/)) {
+              if (lines[j].trim()) {
+                description += ' ' + lines[j].trim();
+              }
+              j++;
+            }
+            
+            globalDescriptions[filename] = description;
+            i = j;
+          } else {
+            i++;
           }
         }
         
-        // Save the last entry
-        if (currentFile) {
-          globalDescriptions[currentFile] = currentDesc.join(' ').trim();
-        }
-        
-        console.log('Loaded descriptions for:', Object.keys(globalDescriptions).length, 'files');
+        console.log('Loaded descriptions for:', Object.keys(globalDescriptions).length, 'entries');
       } catch (error) {
         console.error('Could not fetch descriptions', error);
       }
