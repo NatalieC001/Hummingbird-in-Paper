@@ -47,6 +47,10 @@ Measurements. Material tests. Glue disasters. Little discoveries.
 
 ---
 
+## Resources
+
+-Advanced Papercraft Techniques: Designing with Paper [https://www.domestika.org/](https://www.domestika.org/en/courses/233-advanced-papercraft-techniques-designing-with-paper/course)
+
 ## Why GitHub
 
 Because paper notebooks get lost. Because the next time I build a paper bird (there will be a next time), I want to remember what I learned. Because someone else might find the trail useful – even if it's messy.
