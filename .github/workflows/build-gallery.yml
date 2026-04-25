@@ -84,13 +84,6 @@ jobs:
                 margin-bottom: 8px; letter-spacing: -0.01em;
               }
               
-              .album-meta {
-                font-family: 'Zalando Sans', sans-serif; font-size: 0.75rem;
-                text-transform: uppercase; letter-spacing: 2px;
-                color: #8b7964; margin-bottom: 25px; padding-bottom: 12px;
-                border-bottom: 1px dashed #bdab92;
-              }
-              
               .gallery-grid {
                 display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;
               }
@@ -132,7 +125,6 @@ jobs:
               
               .gallery-item-caption {
                 padding: 14px 4px 4px 4px; line-height: 1.4;
-                border-top: none;
               }
               
               .caption-title {
@@ -143,7 +135,7 @@ jobs:
               
               .caption-text {
                 font-family: 'Zalando Sans', sans-serif; font-size: 0.8rem;
-                color: #5a4b3d; letter-spacing: 0.2px; font-weight: 500;
+                color: #5a4b3d; letter-spacing: 0.2px;
               }
               
               .album-description {
@@ -200,59 +192,41 @@ jobs:
               
               .lightbox-text-header h3 {
                 font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.6rem; font-weight: 600;
-                color: #3a2a1c; margin-bottom: 8px; letter-spacing: -0.01em;
+                color: #3a2a1c; margin-bottom: 8px;
               }
               
               .lightbox-text-header .filename {
                 font-family: monospace; font-size: 0.75rem; color: #4a5c60;
                 background: #e0e4e6; padding: 4px 10px; border-radius: 2px;
-                display: inline-block; word-break: break-all; border: 1px solid #bdc5c7;
-                letter-spacing: 1px;
+                display: inline-block;
               }
               
               .lightbox-caption {
                 flex: 1; overflow-y: auto; padding: 20px 24px;
-                font-family: 'Zalando Sans', sans-serif; font-size: 0.95rem; line-height: 1.7; color: #3a2a1c;
+                font-family: 'Zalando Sans', sans-serif; font-size: 0.95rem; line-height: 1.7;
               }
               
-              .lightbox-caption::-webkit-scrollbar { width: 8px; }
-              .lightbox-caption::-webkit-scrollbar-track { background: #efebe1; border-left: 1px solid #e0d5c1; }
-              .lightbox-caption::-webkit-scrollbar-thumb { background: #bda582; border-radius: 0; }
-              .lightbox-caption::-webkit-scrollbar-thumb:hover { background: #968366; }
-              
-              .lightbox-caption a {
-                color: #7b4c3a;
-                text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px;
-              }
-              .lightbox-caption a:hover { color: #8c2b1a; text-decoration-style: dashed; }
+              .lightbox-caption a { color: #7b4c3a; }
+              .lightbox-caption a:hover { color: #8c2b1a; }
               
               .close-hint {
-                position: fixed; top: 20px; right: 30px; font-family: monospace; font-size: 0.85rem;
+                position: fixed; top: 20px; right: 30px; font-family: monospace;
                 color: #cca; background: transparent; padding: 8px 16px; border: 1px solid #cca;
-                cursor: pointer; z-index: 10001; transition: 0.2s; letter-spacing: 1px;
-                text-transform: uppercase;
+                cursor: pointer; z-index: 10001;
               }
               .close-hint:hover { background: #cca; color: #161412; }
               
               footer {
                 text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1px solid #c8b9a1;
-                font-size: 0.8rem; color: #7a6d59; font-weight: 500;
-                padding-bottom: 20px;
+                font-size: 0.8rem; color: #7a6d59;
               }
-              footer a { color: #6b523f; text-decoration: none; border-bottom: 1px dotted #6b523f; }
-              footer a:hover { color: #2c1a0c; border-bottom-style: solid; }
+              footer a { color: #6b523f; text-decoration: none; }
               
               @media (max-width: 800px) {
                 .lightbox-container { flex-direction: column; width: 95vw; height: 90vh; }
-                .lightbox-text-area { width: 100%; max-width: none; height: 40%; min-height: 200px; border-left: none; border-top: 2px solid #bdab92; }
+                .lightbox-text-area { width: 100%; max-width: none; height: 40%; border-left: none; border-top: 2px solid #bdab92; }
                 .lightbox-image-area { height: 60%; }
                 h1 { font-size: 3rem; } .album h2 { font-size: 2rem; }
-              }
-              
-              @media (max-width: 700px) {
-                body { padding: 15px; } .album { padding: 20px; }
-                .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-                .gallery-item img, .gallery-item video { height: 160px; }
               }
             </style>
           </head>
@@ -262,16 +236,12 @@ jobs:
                 <h1>Hummingbird in Paper</h1>
                 <div class="subhead">A field notebook tracing the intersection of traditional papercraft, 3D printing, AI, and Blender automation.</div>
               </header>
-              
               <div id="gallery-container"></div>
-              
-              <footer>
-                📜 <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — a hybrid inventor's notebook documenting a multi-disciplinary tech and art journey.
-              </footer>
+              <footer>📜 <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a></footer>
             </div>
             
             <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-              <div class="close-hint" onclick="closeLightbox()">✕ Close (Esc)</div>
+              <div class="close-hint" onclick="closeLightbox()">✕ Close</div>
               <div class="lightbox-container" onclick="event.stopPropagation()">
                 <div class="lightbox-image-area">
                   <img id="lightbox-image" class="lightbox-media" style="display:none;">
@@ -304,7 +274,6 @@ jobs:
               function openLightbox(url, isVideo, description, filename) {
                 lightboxCaption.innerHTML = description || 'No description available';
                 lightboxFilename.textContent = filename || '';
-                
                 if (isVideo) {
                   lightboxImg.style.display = 'none';
                   lightboxVideo.style.display = 'block';
@@ -332,22 +301,14 @@ jobs:
                 document.body.style.overflow = 'auto';
               }
               
-              document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && lightbox.style.display === 'flex') {
-                  closeLightbox();
-                }
-              });
+              document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
               
               async function fetchAlbumFolders() {
                 try {
                   const response = await fetch(API_BASE);
-                  if (!response.ok) {
-                    console.error('Could not fetch gallery folders');
-                    return [];
-                  }
+                  if (!response.ok) return [];
                   const contents = await response.json();
-                  const folders = contents.filter(item => item.type === 'dir');
-                  return folders.map(folder => folder.name);
+                  return contents.filter(item => item.type === 'dir').map(folder => folder.name);
                 } catch (error) {
                   console.error('Error fetching folders:', error);
                   return [];
@@ -358,73 +319,67 @@ jobs:
               
               async function fetchDescriptions() {
                 try {
-                  const descUrl = `${BASE_RAW}descriptions.txt`;
-                  const response = await fetch(descUrl);
+                  const response = await fetch(`${BASE_RAW}descriptions.txt`);
                   if (!response.ok) return;
-                  
                   const text = await response.text();
                   
-                  // More robust parser: find lines that start with a filename pattern
+                  // Simple parser: find lines that start with a filename and colon
                   const lines = text.split(/\r?\n/);
-                  let i = 0;
+                  let currentKey = null;
+                  let currentValue = [];
                   
-                  while (i < lines.length) {
+                  for (let i = 0; i < lines.length; i++) {
                     const line = lines[i];
-                    // Match pattern: filename.ext: or DIR_something:
-                    const match = line.match(/^([A-Za-z0-9_\-\.\s]+?(?:\.\w+)?|DIR_[A-Za-z0-9_]+):\s*(.*)$/);
+                    // Check if line starts with a filename pattern (has . or starts with DIR_)
+                    const colonIndex = line.indexOf(':');
+                    const isNewEntry = colonIndex > 0 && (
+                      line.substring(0, colonIndex).includes('.') || 
+                      line.substring(0, colonIndex).startsWith('DIR_')
+                    );
                     
-                    if (match) {
-                      const filename = match[1].trim();
-                      let description = match[2].trim();
-                      
-                      // Check if next lines continue this description (no filename pattern at start)
-                      let j = i + 1;
-                      while (j < lines.length && !lines[j].match(/^[A-Za-z0-9_\-\.\s]+?(?:\.\w+)?|DIR_[A-Za-z0-9_]+:/)) {
-                        if (lines[j].trim()) {
-                          description += ' ' + lines[j].trim();
-                        }
-                        j++;
+                    if (isNewEntry) {
+                      // Save previous entry
+                      if (currentKey) {
+                        globalDescriptions[currentKey] = currentValue.join(' ').trim();
                       }
-                      
-                      globalDescriptions[filename] = description;
-                      i = j;
-                    } else {
-                      i++;
+                      // Start new entry
+                      currentKey = line.substring(0, colonIndex).trim();
+                      currentValue = [line.substring(colonIndex + 1).trim()];
+                    } else if (currentKey && line.trim()) {
+                      // Append to current description
+                      currentValue.push(line.trim());
                     }
                   }
+                  // Save last entry
+                  if (currentKey) {
+                    globalDescriptions[currentKey] = currentValue.join(' ').trim();
+                  }
                   
-                  console.log('Loaded descriptions for:', Object.keys(globalDescriptions).length, 'entries');
+                  console.log('Loaded', Object.keys(globalDescriptions).length, 'descriptions');
                 } catch (error) {
-                  console.error('Could not fetch descriptions', error);
+                  console.error('Error fetching descriptions:', error);
                 }
               }
               
               async function fetchMediaInFolder(folderName) {
                 try {
                   const response = await fetch(`${API_BASE}/${folderName}`);
-                  
                   if (!response.ok) return [];
                   const contents = await response.json();
-                  
                   const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-                  const videoExtensions = ['mp4', 'mov', 'MP4', 'MOV'];
-                  const allExtensions = [...imageExtensions, ...videoExtensions];
-                  
+                  const videoExtensions = ['mp4', 'mov'];
                   const media = contents.filter(item => {
                     if (item.type !== 'file') return false;
-                    const ext = item.name.split('.').pop();
-                    return allExtensions.includes(ext);
+                    const ext = item.name.split('.').pop().toLowerCase();
+                    return [...imageExtensions, ...videoExtensions].includes(ext);
                   });
-                  
                   return media.map(item => {
-                    const ext = item.name.split('.').pop();
-                    const isVideo = videoExtensions.includes(ext);
+                    const ext = item.name.split('.').pop().toLowerCase();
                     return {
                       name: item.name,
                       url: `${BASE_RAW}${folderName}/${item.name}`,
-                      downloadUrl: item.download_url,
-                      isVideo: isVideo,
-                      description: globalDescriptions[item.name] || globalDescriptions[item.name.toLowerCase()] || ''
+                      isVideo: videoExtensions.includes(ext),
+                      description: globalDescriptions[item.name] || ''
                     };
                   });
                 } catch (error) {
@@ -434,61 +389,25 @@ jobs:
               }
               
               function getFolderDisplayName(folderName) {
-                const nameMap = {
-                  'reference_images': 'Reference & Anatomy Studies',
-                  '3d_modeling': 'The 3D Model',
-                  'printing_failures': '3D Printing Failures',
-                  'blender_plugin': 'JointForge Plugin (Keys & Slots)',
-                  'templates': 'Templates & Tracings',
-                  'paper_cutting': 'Paper Cutting & Assembly',
-                  'embossing_tools': '3D Printed Tooling & Embossing',
-                  'materials': 'Materials & Painting Tests',
-                  'progress_photos': 'Progress & Discoveries',
-                  'failures': 'Studies in What Falls Away',
-                  'armature': 'The Armature Beneath',
-                  'paper_tests': 'On Paper & Patience',
-                  'inspirations': 'Artists Who Guide the Hand',
-                  'discoveries': 'Moments of Clarity',
-                  'solutions': 'What Took Flight'
+                const map = {
+                  '3d_modeling': '3D Modeling',
+                  'blender_plugin': 'Blender Plugin',
+                  'materials': 'Materials',
+                  'paper_cutting': 'Paper Cutting',
+                  'progress_photos': 'Progress Photos',
+                  'reference_images': 'Reference Images',
+                  'templates': 'Templates'
                 };
-                return nameMap[folderName] || folderName.replace(/_/g, ' ');
+                return map[folderName] || folderName;
               }
               
               async function buildGallery() {
-                container.innerHTML = '<div style="text-align:center; padding:60px; font-family: Zalando Sans, sans-serif;">Loading field notes...</div>';
-                
+                container.innerHTML = '<div style="text-align:center; padding:60px;">Loading...</div>';
                 await fetchDescriptions();
                 let folders = await fetchAlbumFolders();
                 
-                const folderOrder = [
-                  'reference_images',
-                  '3d_modeling',
-                  'printing_failures',
-                  'blender_plugin',
-                  'templates',
-                  'paper_cutting',
-                  'embossing_tools',
-                  'materials',
-                  'progress_photos',
-                  'armature',
-                  'failures'
-                ];
-                
-                folders.sort((a, b) => {
-                  let indexA = folderOrder.indexOf(a);
-                  let indexB = folderOrder.indexOf(b);
-                  if (indexA === -1) indexA = 999;
-                  if (indexB === -1) indexB = 999;
-                  return indexA - indexB;
-                });
-                
                 if (folders.length === 0) {
-                  container.innerHTML = `
-                    <div class="empty-album" style="margin: 60px auto; max-width: 600px;">
-                      <p>No albums yet — like a new notebook, waiting for sketches.</p>
-                      <p style="margin-top: 20px; font-size: 0.8rem;">Add folders inside <code style="background:#e8e0d4; padding:2px 6px; border-radius:4px;">gallery/</code> with images and a description.txt</p>
-                    </div>
-                  `;
+                  container.innerHTML = '<div class="empty-album">No albums found</div>';
                   return;
                 }
                 
@@ -496,32 +415,24 @@ jobs:
                 
                 for (const folder of folders) {
                   const mediaItems = await fetchMediaInFolder(folder);
-                  
                   const albumDiv = document.createElement('div');
                   albumDiv.className = 'album';
-                  
-                  const title = getFolderDisplayName(folder);
                   const folderDesc = globalDescriptions[`DIR_${folder}`] || '';
-                  const descHtml = folderDesc ? `<div class="album-description">${folderDesc}</div>` : '';
-                  
                   albumDiv.innerHTML = `
-                    <h2>${title}</h2>
-                    ${descHtml}
-                    <div class="gallery-grid" id="grid-${folder.replace(/[^a-zA-Z0-9]/g, '-')}"></div>
+                    <h2>${getFolderDisplayName(folder)}</h2>
+                    ${folderDesc ? `<div class="album-description">${folderDesc}</div>` : ''}
+                    <div class="gallery-grid" id="grid-${folder}"></div>
                   `;
-                  
                   container.appendChild(albumDiv);
-                  
-                  const gridContainer = albumDiv.querySelector('.gallery-grid');
+                  const grid = albumDiv.querySelector('.gallery-grid');
                   
                   if (mediaItems.length === 0) {
-                    gridContainer.innerHTML = '<div class="empty-album" style="grid-column:1/-1;">🍂 No media in this folder yet — waiting for your next experiment.</div>';
+                    grid.innerHTML = '<div class="empty-album">No images yet</div>';
                   } else {
                     mediaItems.forEach(media => {
                       const item = document.createElement('div');
                       item.className = 'gallery-item';
                       item.onclick = () => openLightbox(media.url, media.isVideo, media.description, media.name);
-                      
                       if (media.isVideo) {
                         const video = document.createElement('video');
                         video.src = media.url;
@@ -535,35 +446,17 @@ jobs:
                         img.src = media.url;
                         img.alt = media.name;
                         img.loading = 'lazy';
-                        img.onerror = function() {
-                          this.style.opacity = '0.5';
-                          this.style.backgroundColor = '#e8e0d4';
-                        };
                         item.appendChild(img);
                       }
-                      
                       const caption = document.createElement('div');
                       caption.className = 'gallery-item-caption';
-                      
-                      const fileName = media.name.replace(/\.[^/.]+$/, '');
-                      const displayName = fileName.length > 35 ? fileName.substring(0, 32) + '...' : fileName;
-                      
-                      const plainTextDescription = media.description ? media.description.replace(/<[^>]*>/g, '') : '';
-                      
-                      if (media.description) {
-                        caption.innerHTML = `
-                          <div class="caption-title">${displayName}</div>
-                          <div class="caption-text">${plainTextDescription.length > 80 ? plainTextDescription.substring(0, 77) + '...' : plainTextDescription}</div>
-                        `;
-                      } else {
-                        caption.innerHTML = `
-                          <div class="caption-title">${media.isVideo ? 'Moving image' : 'Study page'}</div>
-                          <div class="caption-text">Click to read the notes</div>
-                        `;
-                      }
-                      
+                      const plainText = media.description ? media.description.replace(/<[^>]*>/g, '') : '';
+                      caption.innerHTML = `
+                        <div class="caption-title">${media.name.replace(/\.[^/.]+$/, '').substring(0, 35)}</div>
+                        <div class="caption-text">${plainText.substring(0, 80)}${plainText.length > 80 ? '...' : 'Click to read'}</div>
+                      `;
                       item.appendChild(caption);
-                      gridContainer.appendChild(item);
+                      grid.appendChild(item);
                     });
                   }
                 }
