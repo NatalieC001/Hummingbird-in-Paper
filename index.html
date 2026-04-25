@@ -68,8 +68,8 @@
     
     .gallery-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
     }
     
     .gallery-item {
@@ -100,14 +100,26 @@
     }
     
     .gallery-item-caption {
-      padding: 10px 12px;
-      font-size: 0.75rem;
-      color: #6b5d4b;
+      padding: 12px;
+      font-size: 0.85rem;
+      color: #4a3e2c;
       background: white;
       border-top: 1px solid #efe5d8;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      line-height: 1.4;
+    }
+    
+    .caption-title {
+      font-weight: 600;
+      color: #2d5a2c;
+      margin-bottom: 5px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .caption-text {
+      font-size: 0.85rem;
+      color: #6b5d4b;
     }
     
     .empty-album {
@@ -132,25 +144,38 @@
       justify-content: center;
       align-items: center;
       cursor: pointer;
+      flex-direction: column;
     }
     
-    .lightbox video, .lightbox img {
+    .lightbox-media {
       max-width: 90%;
-      max-height: 90%;
+      max-height: 70vh;
       object-fit: contain;
       border-radius: 8px;
       box-shadow: 0 0 40px rgba(0,0,0,0.3);
     }
     
-    .lightbox video {
-      background: black;
+    .lightbox-caption {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.85);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 12px;
+      max-width: 80%;
+      text-align: center;
+      font-size: 1rem;
+      line-height: 1.5;
+      pointer-events: none;
+      z-index: 10001;
     }
     
     .close-hint {
       position: fixed;
-      bottom: 25px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 25px;
+      right: 25px;
       color: rgba(255,255,255,0.7);
       background: rgba(0,0,0,0.5);
       padding: 8px 18px;
@@ -182,8 +207,9 @@
       .album { padding: 20px; }
       h1 { font-size: 1.8rem; }
       .album h2 { font-size: 1.4rem; }
-      .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-      .gallery-item img, .gallery-item video { height: 130px; }
+      .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+      .gallery-item img, .gallery-item video { height: 150px; }
+      .lightbox-caption { font-size: 0.85rem; padding: 10px 20px; bottom: 20px; }
     }
   </style>
 </head>
@@ -202,9 +228,10 @@
   </div>
   
   <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-    <video id="lightbox-video" controls style="display:none;"></video>
-    <img id="lightbox-image" alt="" style="display:none;">
     <div class="close-hint">Click anywhere to close — ✕</div>
+    <img id="lightbox-image" class="lightbox-media" style="display:none;">
+    <video id="lightbox-video" class="lightbox-media" controls style="display:none;"></video>
+    <div id="lightbox-caption" class="lightbox-caption"></div>
   </div>
   
   <script>
@@ -218,8 +245,11 @@
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-image');
     const lightboxVideo = document.getElementById('lightbox-video');
+    const lightboxCaption = document.getElementById('lightbox-caption');
     
-    function openLightbox(url, isVideo) {
+    function openLightbox(url, isVideo, description) {
+      lightboxCaption.textContent = description || 'No description available';
+      
       if (isVideo) {
         lightboxImg.style.display = 'none';
         lightboxVideo.style.display = 'block';
@@ -242,6 +272,7 @@
       lightboxVideo.pause();
       lightboxVideo.src = '';
       lightboxImg.src = '';
+      lightboxCaption.textContent = '';
       document.body.style.overflow = 'auto';
     }
     
@@ -261,13 +292,41 @@
       }
     }
     
+    async function fetchDescriptions(folderName) {
+      try {
+        const descUrl = `${BASE_RAW}${folderName}/description.txt`;
+        const response = await fetch(descUrl);
+        if (!response.ok) return {};
+        
+        const text = await response.text();
+        const descriptions = {};
+        text.split('\n').forEach(line => {
+          const colonIndex = line.indexOf(':');
+          if (colonIndex > 0) {
+            const filename = line.substring(0, colonIndex).trim();
+            const description = line.substring(colonIndex + 1).trim();
+            if (filename && description) {
+              descriptions[filename] = description;
+            }
+          }
+        });
+        return descriptions;
+      } catch (error) {
+        return {};
+      }
+    }
+    
     async function fetchMediaInFolder(folderName) {
       try {
-        const response = await fetch(`${API_BASE}/${folderName}`);
+        const [response, descriptions] = await Promise.all([
+          fetch(`${API_BASE}/${folderName}`),
+          fetchDescriptions(folderName)
+        ]);
+        
         if (!response.ok) return [];
         const contents = await response.json();
         
-        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'JPG', 'JPEG', 'PNG', 'GIF', 'WEBP'];
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
         const videoExtensions = ['mp4', 'mov', 'MP4', 'MOV'];
         const allExtensions = [...imageExtensions, ...videoExtensions];
         
@@ -284,7 +343,8 @@
             name: item.name,
             url: `${BASE_RAW}${folderName}/${item.name}`,
             downloadUrl: item.download_url,
-            isVideo: isVideo
+            isVideo: isVideo,
+            description: descriptions[item.name] || ''
           };
         });
       } catch (error) {
@@ -331,11 +391,10 @@
         const albumDiv = document.createElement('div');
         albumDiv.className = 'album';
         
-        const mediaCount = mediaItems.length;
         const imageCount = mediaItems.filter(m => !m.isVideo).length;
         const videoCount = mediaItems.filter(m => m.isVideo).length;
         
-        let countText = `${mediaCount} ${mediaCount === 1 ? 'item' : 'items'}`;
+        let countText = `${mediaItems.length} ${mediaItems.length === 1 ? 'item' : 'items'}`;
         if (imageCount > 0 && videoCount > 0) {
           countText = `${imageCount} photo${imageCount !== 1 ? 's' : ''} + ${videoCount} video${videoCount !== 1 ? 's' : ''}`;
         } else if (videoCount > 0) {
@@ -361,7 +420,7 @@
           mediaItems.forEach(media => {
             const item = document.createElement('div');
             item.className = 'gallery-item';
-            item.onclick = () => openLightbox(media.url, media.isVideo);
+            item.onclick = () => openLightbox(media.url, media.isVideo, media.description);
             
             if (media.isVideo) {
               const video = document.createElement('video');
@@ -385,11 +444,21 @@
             
             const caption = document.createElement('div');
             caption.className = 'gallery-item-caption';
-            let displayName = media.name.replace(/\.[^/.]+$/, '').substring(0, 45);
-            if (media.isVideo) {
-              displayName = '🎬 ' + displayName;
+            
+            const fileName = media.name.replace(/\.[^/.]+$/, '');
+            const displayName = fileName.length > 35 ? fileName.substring(0, 32) + '...' : fileName;
+            
+            if (media.description) {
+              caption.innerHTML = `
+                <div class="caption-title">📝 ${displayName}</div>
+                <div class="caption-text">${media.description.length > 80 ? media.description.substring(0, 77) + '...' : media.description}</div>
+              `;
+            } else {
+              caption.innerHTML = `
+                <div class="caption-title">${media.isVideo ? '🎬' : '🖼️'} ${displayName}</div>
+                <div class="caption-text">Click to view</div>
+              `;
             }
-            caption.textContent = displayName;
             
             item.appendChild(caption);
             gridContainer.appendChild(item);
