@@ -8,7 +8,7 @@ NattyHummbingbirdWingAndTailFeathers copy.png: Full digital pattern including bo
 Pasted image 20260421150205.png: Materials to keep in mind
 Pasted image 20260423142537.png: Their tiny peets - I'm considering wire with wool or something like that... when I was a kid. I used to love making fishin lures, the tight wrapping around wire. Perhaps that might work..layers with some kind of padding material...hmmm!
 Pasted image 20260423143324.png: Some Awful AI but it did get me thinking about paper Scutes...tissue paper ripped to look like scaly feet... Hmmm could beinteresting... however, for the basis of the claws, I think I might model them in 3d attach them to the wire ends... probably simple enough heat wire then poke into the thin plastic...wrap thread over and pad, I really don't want it as an entirely 3D printed body. It just doesn't get the nice details that I like, the idea is to create the 3D armature and then texture it with the paper and paint all the nice effects
-00_Hero_Python.png: A concept sketch mapping the logic behind our custom https://github.com/NatalieC001/JointForge. This tool automatically splits oversized armatures to fit standard printing beds with snap-fit joints.
+00_Hero_Python.png: A concept sketch mapping the logic behind our custom <a href="https://github.com/NatalieC001/jointforge" target="_blank">JointForge Blender plugin</a>. This tool automatically splits oversized armatures to fit standard printing beds with snap-fit joints.
 
 DIR_3d_modeling: The foundation of the project begins in Blender. Here, the overall shape and structure of the hummingbird are digitally sculpted to form a solid base for the papercraft.
 DIR_printing_failures: Translating a digital model to the physical world rarely works perfectly the first time. Early attempts to 3D print the full model revealed limitations, primarily our Bambu A1 Mini's small build plate.
@@ -19,4 +19,4 @@ DIR_embossing_tools: Looking forward: To achieve realistic feather textures, I p
 00_Hero_Blender.png: A stylized rendering of the digital mesh used as the structural foundation for the physical papercraft.
 DentalTools.png: Dental tools are super useful for paper crafting and just about everything else!
 Pasted image 20260423142520.png: <a href="https://www.reddit.com/r/hummingbirds/" target="_blank">Reddit</a> - A great reference site and super nice community!
-HummingbirdScene2.png: DisplayConcepts https://www.stinebergevensen.nl. Amazing artist! I really love her plants. I know that it would take years to get that amount of skill, but the chance to learn something like that would be pretty amazing.
+HummingbirdScene2.png: DisplayConcepts
