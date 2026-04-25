@@ -1,6 +1,8 @@
 # Hummingbird in Paper
 
-[A diary. No downloads. Just the process.](https://nataliec001.github.io/Hummingbird-in-Paper/)
+> 🌿 **[View the Live Process Gallery](https://nataliec001.github.io/Hummingbird-in-Paper/)** 📝
+> *A field notebook mapping the intersection of traditional papercraft, 3D printing, AI, and Blender plugin automation.*
+
 
 ---
 
