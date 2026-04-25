@@ -334,36 +334,33 @@
       }
     }
     
-    async function fetchDescriptions(folderName) {
+    let globalDescriptions = {};
+    
+    async function fetchDescriptions() {
       try {
-        const descUrl = `${BASE_RAW}${folderName}/description.txt`;
+        const descUrl = `${BASE_RAW}descriptions.txt`;
         const response = await fetch(descUrl);
-        if (!response.ok) return {};
+        if (!response.ok) return;
         
         const text = await response.text();
-        const descriptions = {};
         text.split('\n').forEach(line => {
           const colonIndex = line.indexOf(':');
           if (colonIndex > 0) {
             const filename = line.substring(0, colonIndex).trim();
             const description = line.substring(colonIndex + 1).trim();
             if (filename && description) {
-              descriptions[filename] = description;
+              globalDescriptions[filename] = description;
             }
           }
         });
-        return descriptions;
       } catch (error) {
-        return {};
+        console.error('Could not fetch descriptions', error);
       }
     }
     
     async function fetchMediaInFolder(folderName) {
       try {
-        const [response, descriptions] = await Promise.all([
-          fetch(`${API_BASE}/${folderName}`),
-          fetchDescriptions(folderName)
-        ]);
+        const response = await fetch(`${API_BASE}/${folderName}`);
         
         if (!response.ok) return [];
         const contents = await response.json();
@@ -386,7 +383,7 @@
             url: `${BASE_RAW}${folderName}/${item.name}`,
             downloadUrl: item.download_url,
             isVideo: isVideo,
-            description: descriptions[item.name] || ''
+            description: globalDescriptions[item.name] || ''
           };
         });
       } catch (error) {
@@ -397,6 +394,10 @@
     
     function getFolderDisplayName(folderName) {
       const nameMap = {
+        'reference_images': '📸 Reference & Anatomy Studies',
+        'materials': '🎨 Materials & Painting Tests',
+        'paper_cutting': '✂️ Templates & Tracings',
+        'blender_plugin': '🧩 Blender Plugin',
         'progress_photos': '📸 Progress & Discoveries',
         'failures': '💥 Studies in What Falls Away',
         'armature': '🔧 The Armature Beneath',
@@ -412,6 +413,7 @@
     async function buildGallery() {
       container.innerHTML = '<div style="text-align:center; padding:60px; font-family: Zalando Sans, sans-serif;">Loading field notes...</div>';
       
+      await fetchDescriptions();
       const folders = await fetchAlbumFolders();
       
       if (folders.length === 0) {
