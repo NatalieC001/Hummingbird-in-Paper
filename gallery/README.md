@@ -34,6 +34,17 @@ The codebase displays images in alphabetical order. If you want a specific "Hero
 1. Ensure the filename begins with `00_`.
 2. Example: `00_Hero_Blender.png`.
 
+## 6 Moving images to new folder
+How to Move an Image Between Folders on GitHub
+Step 1: Enter Edit Mode
+Navigate to the image file (gallery/materials/1000037106.png) and click the three dots (...) menu in the top right, then select Edit.
+
+Step 6b: Re-route the File Path
+Click inside the filename text box at the top. Place your cursor at the very beginning of the filename and press Backspace to remove the old folder (materials/). Type the name of the new folder followed by a forward slash: paper_cutting/.
+
+Step 6c: Commit the Move
+Scroll down (or use the button at the top right) to click Commit changes.... Enter a brief description like "Move image to paper_cutting folder" and click the final Commit changes button to save the move.
+
 ## Current Folders Configuration
 Do not change the names of these folders unless you also update the display names array inside the `.github/workflows/build-gallery.yml` file.
 * `reference_images`
