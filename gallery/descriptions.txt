@@ -19,3 +19,4 @@ DIR_embossing_tools| Looking forward: To achieve realistic feather textures, I p
 DentalTools.png| Dental tools are super useful for paper crafting and just about everything else!
 Pasted image 20260423142520.png| <a href="https://www.reddit.com/r/hummingbirds/" target="_blank">Reddit</a> - A great reference site and super nice community!
 HummingbirdScene2.png| DisplayConcepts
+blender_01.gif| building the base shape. I haven't included the feathers since they will be as paper, created a slot for the tail still considering the print size after some failures. But this is what we have at the moment to make transfer a little bit easier into the printing part of the project I then worked on a plugin JointForge -  to help break the body up into pieces I did this because trying to print the thin wings out resulted in a lot of plactic poops XD, et cetera, and just created a lot of failures... so wishing myself a little bit of luck here that I can fix the problem.
