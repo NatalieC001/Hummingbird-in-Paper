@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hummingbird in Paper - Process Gallery</title>
+  <title>Hummingbird in Paper - Process Gallery & Diary</title>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=Zalando+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -21,64 +22,298 @@
       color: #2c2a26;
     }
     
-    .container { max-width: 1400px; margin: 0 auto; position: relative; }
+    /* Responsive layout */
+    .container { 
+      max-width: 1600px; 
+      margin: 0 auto; 
+      position: relative; 
+    }
     
+    /* Two-column layout for desktop */
+    .two-columns {
+      display: flex;
+      gap: 30px;
+      align-items: flex-start;
+    }
+    
+    .gallery-main {
+      flex: 3;
+      min-width: 0;
+    }
+    
+    .diary-sidebar {
+      flex: 1;
+      min-width: 350px;
+      max-width: 450px;
+      background: rgba(248, 245, 238, 0.92);
+      backdrop-filter: blur(4px);
+      border: 1px solid #c8b9a1;
+      border-radius: 2px;
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    /* Mobile layout */
+    @media (max-width: 900px) {
+      .two-columns {
+        flex-direction: column;
+      }
+      .diary-sidebar {
+        max-width: none;
+        position: static;
+        max-height: 500px;
+        order: -1;
+        margin-bottom: 20px;
+      }
+    }
+    
+    /* Diary styles */
+    .diary-header {
+      padding: 20px 20px 12px;
+      border-bottom: 2px solid #bdab92;
+      background: rgba(250, 248, 242, 0.95);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .diary-header h2 {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #4a3424;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .diary-header h2::before {
+      content: '📔';
+      font-size: 1.4rem;
+    }
+    
+    .diary-entries {
+      padding: 10px 20px 20px;
+    }
+    
+    .diary-entry {
+      background: #fdfcfa;
+      border: 1px solid #d4c5ae;
+      margin-bottom: 24px;
+      border-radius: 2px;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    
+    .diary-entry:hover {
+      border-color: #8b6b4a;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .diary-date {
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      background: #eaddcb;
+      padding: 10px 16px;
+      color: #3a2a1c;
+      border-bottom: 1px solid #d4c5ae;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .diary-date::before {
+      content: '📅';
+      font-size: 1rem;
+    }
+    
+    .diary-content {
+      padding: 16px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #4a3b2e;
+    }
+    
+    .diary-content h1 {
+      font-size: 1.3rem;
+      margin: 16px 0 8px;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      color: #3a2a1c;
+    }
+    
+    .diary-content h2 {
+      font-size: 1.1rem;
+      margin: 14px 0 8px;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      color: #4a3424;
+      border-left: 3px solid #bdab92;
+      padding-left: 10px;
+    }
+    
+    .diary-content h3 {
+      font-size: 1rem;
+      margin: 12px 0 6px;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      color: #5a4b3a;
+    }
+    
+    .diary-content h1:first-child,
+    .diary-content h2:first-child,
+    .diary-content h3:first-child {
+      margin-top: 0;
+    }
+    
+    .diary-content ul, .diary-content ol {
+      margin: 8px 0 8px 20px;
+    }
+    
+    .diary-content li {
+      margin: 4px 0;
+    }
+    
+    .diary-content p {
+      margin: 8px 0;
+    }
+    
+    .diary-content a {
+      color: #7b4c3a;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+    }
+    
+    .diary-content a:hover {
+      color: #8c2b1a;
+    }
+    
+    .diary-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 2px;
+      margin: 10px 0;
+      border: 1px solid #d4c5ae;
+      display: block;
+    }
+    
+    .diary-content blockquote {
+      margin: 10px 0;
+      padding-left: 16px;
+      border-left: 3px solid #bdab92;
+      color: #6a5a4a;
+      font-style: italic;
+    }
+    
+    .diary-content code {
+      background: #e8e0d4;
+      padding: 2px 5px;
+      border-radius: 2px;
+      font-size: 0.85em;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .diary-content pre {
+      background: #e8e0d4;
+      padding: 12px;
+      overflow-x: auto;
+      border-radius: 2px;
+      margin: 10px 0;
+    }
+    
+    .diary-content pre code {
+      background: none;
+      padding: 0;
+    }
+    
+    .task-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+    }
+    
+    .task-checkbox input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: default;
+      accent-color: #7b4c3a;
+    }
+    
+    .task-checkbox.completed label {
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+    
+    .task-checkbox label {
+      cursor: default;
+      flex: 1;
+    }
+    
+    .empty-diary {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9a8a75;
+      font-style: italic;
+    }
+    
+    /* Gallery styles (preserved from your original) */
     header {
-      text-align: center; margin-bottom: 50px;
-      padding-bottom: 25px; border-bottom: 3px double #bdab92;
-      position: relative;
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 3px double #bdab92;
     }
     
     h1 {
       font-family: 'Bricolage Grotesque', sans-serif;
-      font-size: 4rem; font-weight: 700;
+      font-size: 3rem;
+      font-weight: 700;
       color: #4a3424;
-      letter-spacing: -0.02em; margin-bottom: 5px;
+      letter-spacing: -0.02em;
+      margin-bottom: 5px;
       text-shadow: 1px 1px 0px rgba(255,255,255,0.4);
     }
     
     .subhead {
-      font-family: 'Zalando Sans', sans-serif;
-      font-weight: 400; font-style: italic;
-      color: #6a5a4a; font-size: 1.1rem; letter-spacing: 0.5px;
+      font-weight: 400;
+      font-style: italic;
+      color: #6a5a4a;
+      font-size: 1rem;
     }
     
     .album {
       background: rgba(248, 245, 238, 0.7);
-      border: 1px solid #c8b9a1; border-radius: 2px;
-      padding: 35px; margin-bottom: 45px;
+      border: 1px solid #c8b9a1;
+      border-radius: 2px;
+      padding: 25px;
+      margin-bottom: 35px;
       box-shadow: inset 0 0 40px rgba(210, 195, 175, 0.15), 0 5px 15px rgba(0,0,0,0.03);
       position: relative;
-    }
-    .album::before {
-      content: ''; position: absolute;
-      top: 5px; left: 5px; right: 5px; bottom: 5px;
-      border: 1px solid rgba(150, 135, 115, 0.15); pointer-events: none;
     }
     
     .album h2 {
       font-family: 'Bricolage Grotesque', sans-serif;
-      font-size: 2.5rem; font-weight: 600; color: #3a2a1c;
-      margin-bottom: 8px; letter-spacing: -0.01em;
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #3a2a1c;
+      margin-bottom: 8px;
     }
     
     .gallery-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 25px;
     }
     
     .gallery-item {
       background: #fdfcfa;
       border: 1px solid #7a6d59;
       padding: 8px;
-      cursor: pointer; transition: all 0.25s ease;
-      position: relative;
+      cursor: pointer;
+      transition: all 0.25s ease;
       box-shadow: 2px 2px 6px rgba(0,0,0,0.04);
-    }
-    .gallery-item::after {
-      content: ''; position: absolute;
-      top: -4px; left: -4px; right: -4px; bottom: -4px;
-      border: 1px dashed rgba(122, 109, 89, 0.4);
-      pointer-events: none; transition: all 0.25s ease;
     }
     
     .gallery-item:hover {
@@ -86,125 +321,159 @@
       box-shadow: 4px 6px 12px rgba(0,0,0,0.08);
       border-color: #3a2a1c;
     }
-    .gallery-item:hover::after {
-      border-color: #8b6b4a;
-    }
     
     .gallery-item img, .gallery-item video {
-      width: 100%; height: 210px; object-fit: cover;
-      display: block; background: #e0d5c1;
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+      background: #e0d5c1;
       filter: sepia(0.15) contrast(1.05);
     }
+    
     .gallery-item:hover img, .gallery-item:hover video {
       filter: sepia(0) contrast(1.1);
     }
     
-    .gallery-item video { pointer-events: none; }
-    
     .gallery-item-caption {
-      padding: 14px 4px 4px 4px; line-height: 1.4;
+      padding: 12px 4px 4px 4px;
     }
     
     .caption-title {
       font-family: 'Bricolage Grotesque', sans-serif;
-      font-weight: 600; font-size: 0.95rem; color: #3a2a1c;
-      margin-bottom: 4px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #3a2a1c;
     }
     
     .caption-text {
-      font-family: 'Zalando Sans', sans-serif; font-size: 0.8rem;
-      color: #5a4b3d; letter-spacing: 0.2px;
+      font-size: 0.7rem;
+      color: #5a4b3d;
     }
     
     .album-description {
-      font-family: 'Zalando Sans', sans-serif; font-size: 0.95rem;
-      color: #5a4b3d; line-height: 1.5; margin-bottom: 25px;
-      padding-bottom: 12px; border-bottom: 1px dashed #c8b9a1;
-    }
-    
-    .empty-album {
-      background: rgba(250,248,242,0.5); padding: 50px; text-align: center;
-      color: #9a8a75; border: 1px dashed #c8b9a1; font-size: 0.9rem;
+      font-size: 0.9rem;
+      color: #5a4b3d;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #c8b9a1;
     }
     
     .lightbox {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(22, 20, 18, 0.96); z-index: 10000;
-      justify-content: center; align-items: center; cursor: pointer;
-      background-image: linear-gradient(rgba(100,140,160,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(100,140,160,0.05) 1px, transparent 1px);
-      background-size: 40px 40px;
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(22, 20, 18, 0.96);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
     }
     
     .lightbox-container {
-      display: flex; flex-direction: row; width: 90vw; max-width: 1400px; height: 85vh;
-      background: #f4efe6; border-radius: 2px; overflow: hidden; cursor: default;
+      display: flex;
+      width: 90vw;
+      max-width: 1400px;
+      height: 85vh;
+      background: #f4efe6;
+      border-radius: 2px;
+      overflow: hidden;
+      cursor: default;
       box-shadow: 0 25px 45px rgba(0,0,0,0.5);
       border: 1px solid #7a6d59;
     }
     
     .lightbox-image-area {
-      flex: 1; display: flex; justify-content: center; align-items: center;
-      background: #eaddcb; padding: 20px; min-width: 0;
-      position: relative;
-    }
-    .lightbox-image-area::before {
-      content: ''; position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;
-      border: 1px solid rgba(130, 115, 95, 0.2); pointer-events: none;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #eaddcb;
+      padding: 20px;
     }
     
     .lightbox-media {
-      max-width: 100%; max-height: 100%; object-fit: contain;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 2px solid #fdfcfa;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      border: 2px solid #fdfcfa;
     }
     
     .lightbox-text-area {
-      width: 40%; min-width: 280px; max-width: 500px;
-      background: #fdfcfa; display: flex; flex-direction: column; overflow: hidden;
+      width: 40%;
+      min-width: 280px;
+      background: #fdfcfa;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
       border-left: 2px solid #bdab92;
     }
     
     .lightbox-text-header {
-      padding: 24px 24px 16px 24px; border-bottom: 1px solid #bdab92;
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid #bdab92;
       background: #f6f3eb;
     }
     
     .lightbox-text-header h3 {
-      font-family: 'Bricolage Grotesque', sans-serif; font-size: 1.6rem; font-weight: 600;
-      color: #3a2a1c; margin-bottom: 8px;
-    }
-    
-    .lightbox-text-header .filename {
-      font-family: monospace; font-size: 0.75rem; color: #4a5c60;
-      background: #e0e4e6; padding: 4px 10px; border-radius: 2px;
-      display: inline-block;
+      font-family: 'Bricolage Grotesque', sans-serif;
+      font-size: 1.4rem;
+      color: #3a2a1c;
     }
     
     .lightbox-caption {
-      flex: 1; overflow-y: auto; padding: 20px 24px;
-      font-family: 'Zalando Sans', sans-serif; font-size: 0.95rem; line-height: 1.7;
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      font-size: 0.9rem;
+      line-height: 1.6;
     }
-    
-    .lightbox-caption a { color: #7b4c3a; }
-    .lightbox-caption a:hover { color: #8c2b1a; }
     
     .close-hint {
-      position: fixed; top: 20px; right: 30px; font-family: monospace;
-      color: #cca; background: transparent; padding: 8px 16px; border: 1px solid #cca;
-      cursor: pointer; z-index: 10001;
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      font-family: monospace;
+      color: #cca;
+      padding: 8px 16px;
+      border: 1px solid #cca;
+      cursor: pointer;
+      z-index: 10001;
+      background: rgba(0,0,0,0.5);
     }
-    .close-hint:hover { background: #cca; color: #161412; }
+    
+    .close-hint:hover {
+      background: #cca;
+      color: #161412;
+    }
     
     footer {
-      text-align: center; margin-top: 50px; padding-top: 25px; border-top: 1px solid #c8b9a1;
-      font-size: 0.8rem; color: #7a6d59;
+      text-align: center;
+      margin-top: 50px;
+      padding-top: 25px;
+      border-top: 1px solid #c8b9a1;
+      font-size: 0.75rem;
+      color: #7a6d59;
     }
-    footer a { color: #6b523f; text-decoration: none; }
     
     @media (max-width: 800px) {
-      .lightbox-container { flex-direction: column; width: 95vw; height: 90vh; }
-      .lightbox-text-area { width: 100%; max-width: none; height: 40%; border-left: none; border-top: 2px solid #bdab92; }
-      .lightbox-image-area { height: 60%; }
-      h1 { font-size: 3rem; } .album h2 { font-size: 2rem; }
+      .lightbox-container {
+        flex-direction: column;
+      }
+      .lightbox-text-area {
+        width: 100%;
+        height: 40%;
+      }
+      .lightbox-image-area {
+        height: 60%;
+      }
+      h1 {
+        font-size: 2.5rem;
+      }
     }
   </style>
 </head>
@@ -214,10 +483,25 @@
       <h1>Hummingbird in Paper</h1>
       <div class="subhead">A field notebook tracing the intersection of traditional papercraft, 3D printing, AI, and Blender automation.</div>
     </header>
-    <div id="gallery-container"></div>
-    <footer>📜 <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a></footer>
+    
+    <div class="two-columns">
+      <div class="gallery-main">
+        <div id="gallery-container"></div>
+      </div>
+      <div class="diary-sidebar" id="diary-sidebar">
+        <div class="diary-header">
+          <h2>Process Diary</h2>
+        </div>
+        <div id="diary-container" class="diary-entries">
+          <div class="empty-diary">Loading diary entries...</div>
+        </div>
+      </div>
+    </div>
+    
+    <footer>📜 <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — Built with Obsidian 📔</footer>
   </div>
   
+  <!-- Lightbox (same as before) -->
   <div id="lightbox" class="lightbox" onclick="closeLightbox()">
     <div class="close-hint" onclick="closeLightbox()">✕ Close</div>
     <div class="lightbox-container" onclick="event.stopPropagation()">
@@ -243,6 +527,7 @@
     const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/gallery`;
     
     const container = document.getElementById('gallery-container');
+    const diaryContainer = document.getElementById('diary-container');
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-image');
     const lightboxVideo = document.getElementById('lightbox-video');
@@ -274,12 +559,68 @@
       lightboxVideo.pause();
       lightboxVideo.src = '';
       lightboxImg.src = '';
-      lightboxCaption.innerHTML = '';
-      lightboxFilename.textContent = '';
       document.body.style.overflow = 'auto';
     }
     
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    
+    // Fetch diary entries
+    async function fetchDiaryEntries() {
+      try {
+        const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/diary`);
+        if (!response.ok) {
+          diaryContainer.innerHTML = '<div class="empty-diary">📔 No diary entries yet. Create a diary/ folder with markdown files!</div>';
+          return [];
+        }
+        
+        const contents = await response.json();
+        const mdFiles = contents.filter(item => item.type === 'file' && item.name.endsWith('.md'));
+        
+        // Sort by date (filename descending - newest first)
+        mdFiles.sort((a, b) => b.name.localeCompare(a.name));
+        
+        const entries = [];
+        for (const file of mdFiles) {
+          const fileResponse = await fetch(file.download_url);
+          const markdown = await fileResponse.text();
+          const date = file.name.replace('.md', '');
+          
+          // Convert Obsidian image syntax
+          let html = markdown;
+          html = html.replace(/!\[\[([^\]]+)\]\]/g, '<img src="$1" alt="image" loading="lazy" onerror="this.src=\'https://via.placeholder.com/400x300?text=Image+not+found\'">');
+          html = html.replace(/- \[ \]/g, '<div class="task-checkbox"><input type="checkbox" disabled> <label>');
+          html = html.replace(/- \[x\]/g, '<div class="task-checkbox completed"><input type="checkbox" checked disabled> <label>');
+          html = html.replace(/\n/g, '<br>');
+          html = html.replace(/<\/label>([\s]*?)<br>/g, '</label></div>');
+          html = html.replace(/#{6}\s(.+)/g, '<h6>$1</h6>');
+          html = html.replace(/#{5}\s(.+)/g, '<h5>$1</h5>');
+          html = html.replace(/#{4}\s(.+)/g, '<h4>$1</h4>');
+          html = html.replace(/#{3}\s(.+)/g, '<h3>$1</h3>');
+          html = html.replace(/#{2}\s(.+)/g, '<h2>$1</h2>');
+          html = html.replace(/#{1}\s(.+)/g, '<h1>$1</h1>');
+          
+          entries.push({ date, html, filename: file.name });
+        }
+        
+        return entries;
+      } catch (error) {
+        console.error('Error fetching diary:', error);
+        diaryContainer.innerHTML = '<div class="empty-diary">Error loading diary entries</div>';
+        return [];
+      }
+    }
+    
+    async function displayDiary() {
+      const entries = await fetchDiaryEntries();
+      if (entries.length === 0) return;
+      
+      diaryContainer.innerHTML = entries.map(entry => `
+        <div class="diary-entry">
+          <div class="diary-date">${entry.date}</div>
+          <div class="diary-content">${entry.html}</div>
+        </div>
+      `).join('');
+    }
     
     async function fetchAlbumFolders() {
       try {
@@ -300,40 +641,31 @@
         const response = await fetch(`${BASE_RAW}descriptions.txt`);
         if (!response.ok) return;
         const text = await response.text();
-        
-        // Simple parser: find lines that start with a filename and colon
         const lines = text.split(/\r?\n/);
         let currentKey = null;
         let currentValue = [];
         
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
-          // Check if line starts with a filename pattern (has . or starts with DIR_)
-          const colonIndex = line.indexOf('|'); // split with | not colons which mess up html
+          const colonIndex = line.indexOf('|');
           const isNewEntry = colonIndex > 0 && (
             line.substring(0, colonIndex).includes('.') || 
             line.substring(0, colonIndex).startsWith('DIR_')
           );
           
           if (isNewEntry) {
-            // Save previous entry
             if (currentKey) {
               globalDescriptions[currentKey] = currentValue.join(' ').trim();
             }
-            // Start new entry
             currentKey = line.substring(0, colonIndex).trim();
             currentValue = [line.substring(colonIndex + 1).trim()];
           } else if (currentKey && line.trim()) {
-            // Append to current description
             currentValue.push(line.trim());
           }
         }
-        // Save last entry
         if (currentKey) {
           globalDescriptions[currentKey] = currentValue.join(' ').trim();
         }
-        
-        console.log('Loaded', Object.keys(globalDescriptions).length, 'descriptions');
       } catch (error) {
         console.error('Error fetching descriptions:', error);
       }
@@ -380,7 +712,7 @@
     }
     
     async function buildGallery() {
-      container.innerHTML = '<div style="text-align:center; padding:60px;">Loading...</div>';
+      container.innerHTML = '<div style="text-align:center; padding:60px;">Loading gallery...</div>';
       await fetchDescriptions();
       let folders = await fetchAlbumFolders();
       
@@ -440,7 +772,7 @@
       }
     }
     
-    buildGallery();
+    // Load everything
+    Promise.all([buildGallery(), displayDiary()]);
   </script>
 </body>
-</html>
