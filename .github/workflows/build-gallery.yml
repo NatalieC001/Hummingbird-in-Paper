@@ -119,7 +119,7 @@ jobs:
               }
               
               .diary-header h2::before {
-                content: '📔';
+                content: '';
                 font-size: 1.4rem;
               }
               
