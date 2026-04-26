@@ -590,11 +590,9 @@ jobs:
               // Function to convert markdown links to HTML
               function convertMarkdownLinks(text) {
                 // Convert [text](url) to <a href="url">text</a>
-                // This regex matches markdown links but not those inside HTML tags or code blocks
-                const linkRegex = /(?<!\]\()\[([^\]]+)\]\(([^)]+)\)/g;
+                // This regex matches markdown links but not those starting with ! (images)
+                const linkRegex = /(?<!!)\[([^\]]+)\]\(([^)]+)\)/g;
                 return text.replace(linkRegex, (match, text, url) => {
-                  // Skip if it's an image link (starts with !)
-                  if (match.startsWith('!')) return match;
                   // Handle relative paths by converting to absolute GitHub URLs if needed
                   let finalUrl = url;
                   if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('#')) {
@@ -609,23 +607,23 @@ jobs:
               function processMarkdown(markdown) {
                 let processed = markdown;
                 
-                // Convert Obsidian image syntax ![[filename.ext]] to regular markdown image syntax
+                // Convert Obsidian image syntax ![[filename.ext]] to HTML directly (preserve GIFs)
                 processed = processed.replace(/!\[\[([^\]]+)\]\]/g, (match, filename) => {
                   // Check if it's a relative path from diary folder
-                  const isRelativePath = filename.includes('/');
                   let imageUrl;
-                  if (isRelativePath) {
+                  if (filename.includes('/')) {
                     imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/${filename}`;
                   } else {
                     imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/${filename}`;
                   }
-                  return `![${filename.split('/').pop()}](${imageUrl})`;
+                  // Return HTML img tag directly (better for GIFs)
+                  return `<img src="${imageUrl}" alt="${filename.split('/').pop()}" loading="lazy" onerror="this.style.display='none'">`;
                 });
                 
-                // Convert markdown links BEFORE converting images (to avoid breaking image syntax)
+                // Convert markdown links (but NOT image links - they start with !)
                 processed = convertMarkdownLinks(processed);
                 
-                // Convert images (these will now have proper markdown image syntax)
+                // Convert any remaining markdown images (standard ![](url) syntax)
                 processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
                   return `<img src="${url}" alt="${alt}" loading="lazy" onerror="this.style.display='none'">`;
                 });
