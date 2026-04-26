@@ -529,7 +529,7 @@ jobs:
                 </div>
               </div>
               
-              <footer>📜 <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — Built with Obsidian 📔</footer>
+              <footer> <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — Obsidian notes intergration </footer>
             </div>
             
             <div id="lightbox" class="lightbox" onclick="closeLightbox()">
@@ -696,7 +696,7 @@ jobs:
                     <div class="diary-entry" data-entry-index="${index}">
                       <div class="diary-header-clickable" onclick="toggleDiaryEntry(${index})">
                         <span class="diary-toggle-icon">▶</span>
-                        <span class="diary-date-title">📅 ${entry.date} — ${entry.title}</span>
+                        <span class="diary-date-title"> ${entry.date} — ${entry.title}</span>
                       </div>
                       <div class="diary-content-wrapper" id="diary-content-${index}">
                         <div class="diary-content">${entry.html}</div>
