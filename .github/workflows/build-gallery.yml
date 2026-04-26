@@ -164,11 +164,6 @@ jobs:
                 transform: rotate(90deg);
               }
               
-              .diary-date-title {
-                flex: 1;
-                font-size: 0.9rem;
-              }
-              
               .diary-content-wrapper {
                 max-height: 0;
                 overflow: hidden;
@@ -226,6 +221,11 @@ jobs:
               .diary-content a {
                 color: #7b4c3a;
                 text-decoration: underline;
+              }
+              
+              .diary-content a:hover {
+                color: #4a3424;
+                text-decoration: none;
               }
               
               .diary-content img {
@@ -587,6 +587,52 @@ jobs:
               
               document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
               
+              // Function to convert markdown links to HTML
+              function convertMarkdownLinks(text) {
+                // Convert [text](url) to <a href="url">text</a>
+                // This regex matches markdown links but not those inside HTML tags or code blocks
+                const linkRegex = /(?<!\]\()\[([^\]]+)\]\(([^)]+)\)/g;
+                return text.replace(linkRegex, (match, text, url) => {
+                  // Skip if it's an image link (starts with !)
+                  if (match.startsWith('!')) return match;
+                  // Handle relative paths by converting to absolute GitHub URLs if needed
+                  let finalUrl = url;
+                  if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('#')) {
+                    // For relative links to Obsidian files, we'll keep them as relative
+                    finalUrl = url;
+                  }
+                  return `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+                });
+              }
+              
+              // Enhanced markdown processing function
+              function processMarkdown(markdown) {
+                let processed = markdown;
+                
+                // Convert Obsidian image syntax ![[filename.ext]] to regular markdown image syntax
+                processed = processed.replace(/!\[\[([^\]]+)\]\]/g, (match, filename) => {
+                  // Check if it's a relative path from diary folder
+                  const isRelativePath = filename.includes('/');
+                  let imageUrl;
+                  if (isRelativePath) {
+                    imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/${filename}`;
+                  } else {
+                    imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/${filename}`;
+                  }
+                  return `![${filename.split('/').pop()}](${imageUrl})`;
+                });
+                
+                // Convert markdown links BEFORE converting images (to avoid breaking image syntax)
+                processed = convertMarkdownLinks(processed);
+                
+                // Convert images (these will now have proper markdown image syntax)
+                processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+                  return `<img src="${url}" alt="${alt}" loading="lazy" onerror="this.style.display='none'">`;
+                });
+                
+                return processed;
+              }
+              
               async function fetchDiaryEntries() {
                 try {
                   const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/diary`);
@@ -613,26 +659,25 @@ jobs:
                     let contentForDisplay = markdown.replace(/^#\s+.+$/m, '').trim();
                     if (!contentForDisplay) contentForDisplay = 'No additional content';
                     
-                    // Convert Obsidian image syntax to GitHub raw URLs
-                    let html = contentForDisplay;
-                    html = html.replace(/!\[\[([^\]]+)\]\]/g, `<img src="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/$1" alt="image" loading="lazy" onerror="this.style.display='none'">`);
+                    // Process markdown (convert links, images, etc.)
+                    let processedContent = processMarkdown(contentForDisplay);
                     
-                    // Convert task checkboxes - line by line to avoid affecting images
-                    const lines = html.split('\n');
+                    // Convert task checkboxes - line by line
+                    const lines = processedContent.split('\n');
                     let convertedLines = [];
                     for (let line of lines) {
                       if (line.match(/^- \[ \]/)) {
-                        // Unchecked task - add checkbox, no strikethrough
+                        // Unchecked task
                         convertedLines.push(line.replace(/^- \[ \]/, '<div class="task-checkbox"><input type="checkbox" disabled> <label>') + '</label></div>');
                       } else if (line.match(/^- \[x\]/i)) {
-                        // Checked task - add strikethrough only to the task text
+                        // Checked task
                         convertedLines.push(line.replace(/^- \[x\]/i, '<div class="task-checkbox completed"><input type="checkbox" checked disabled> <label>') + '</label></div>');
                       } else {
                         // Regular line - keep as is
                         convertedLines.push(line);
                       }
                     }
-                    html = convertedLines.join('\n');
+                    let html = convertedLines.join('\n');
                     
                     // Convert headers
                     html = html.replace(/#{6}\s(.+)/g, '<h6>$1</h6>');
