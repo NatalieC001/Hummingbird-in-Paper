@@ -51,7 +51,9 @@ Measurements. Material tests. Glue disasters. Little discoveries.
 - Still seat of pants experimental XD blender script to automate notch and kets for model making [JointForge ](https://github.com/NatalieC001/JointForge)
 - Paper feather cutting tecqnique https://www.youtube.com/watch?v=O3CLUGTOR0k
 - [World of hummingbirds](https://www.worldofhummingbirds.com/photos.html)
-- [Escape with feathers](https://www.youtube.com/watch?v=ibpzzP0j_x4) 
+- [Escape with feathers](https://www.youtube.com/watch?v=ibpzzP0j_x4)
+- [Hummingbird macro shots](https://www.reddit.com/r/hummingbirds/comments/1mw0bxv/hummingbird_feet_macro_shots/)
+
 
 ## Why GitHub
 
