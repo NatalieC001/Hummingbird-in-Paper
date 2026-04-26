@@ -578,7 +578,7 @@
           
           // Convert Obsidian image syntax
           let html = contentForDisplay;
-          html = html.replace(/!\[\[([^\]]+)\]\]/g, '<img src="$1" alt="image" loading="lazy">');
+          html = html.replace(/!\[\[([^\]]+)\]\]/g, `<img src="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/$1" alt="image" loading="lazy">`);
           html = html.replace(/- \[ \]/g, '<div class="task-checkbox"><input type="checkbox" disabled> <label>');
           html = html.replace(/- \[x\]/g, '<div class="task-checkbox completed"><input type="checkbox" checked disabled> <label>');
           html = html.replace(/\n/g, '<br>');
