@@ -86,7 +86,7 @@
     }
     
     .diary-header h2::before {
-      content: '';
+      content: '📔';
       font-size: 1.4rem;
     }
     
@@ -94,6 +94,7 @@
       padding: 10px 20px 20px;
     }
     
+    /* Collapsible diary entry styles */
     .diary-entry {
       background: #fdfcfa;
       border: 1px solid #d4c5ae;
@@ -236,11 +237,6 @@
     .task-checkbox.completed label {
       text-decoration: line-through;
       opacity: 0.7;
-    }
-    
-    .task-checkbox label {
-      cursor: default;
-      flex: 1;
     }
     
     .empty-diary {
@@ -489,7 +485,7 @@
       </div>
     </div>
     
-    <footer> <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — Built with Obsidian notes support </footer>
+    <footer> <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — Built with Obsidian Notes Support</footer>
   </div>
   
   <div id="lightbox" class="lightbox" onclick="closeLightbox()">
@@ -580,36 +576,18 @@
           let contentForDisplay = markdown.replace(/^#\s+.+$/m, '').trim();
           if (!contentForDisplay) contentForDisplay = 'No additional content';
           
-          // Convert Obsidian image syntax to GitHub raw URLs
+          // Convert Obsidian image syntax
           let html = contentForDisplay;
-          html = html.replace(/!\[\[([^\]]+)\]\]/g, `<img src="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/$1" alt="image" loading="lazy" onerror="this.style.display='none'">`);
-          
-          // Convert task checkboxes - line by line to avoid affecting images
-          const lines = html.split('\n');
-          let convertedLines = [];
-          for (let line of lines) {
-            if (line.match(/^- \[ \]/)) {
-              // Unchecked task - add checkbox, no strikethrough
-              convertedLines.push(line.replace(/^- \[ \]/, '<div class="task-checkbox"><input type="checkbox" disabled> <label>') + '</label></div>');
-            } else if (line.match(/^- \[x\]/i)) {
-              // Checked task - add strikethrough only to the task text
-              convertedLines.push(line.replace(/^- \[x\]/i, '<div class="task-checkbox completed"><input type="checkbox" checked disabled> <label>') + '</label></div>');
-            } else {
-              // Regular line - keep as is
-              convertedLines.push(line);
-            }
-          }
-          html = convertedLines.join('\n');
-          
-          // Convert headers
+          html = html.replace(/!\[\[([^\]]+)\]\]/g, '<img src="$1" alt="image" loading="lazy">');
+          html = html.replace(/- \[ \]/g, '<div class="task-checkbox"><input type="checkbox" disabled> <label>');
+          html = html.replace(/- \[x\]/g, '<div class="task-checkbox completed"><input type="checkbox" checked disabled> <label>');
+          html = html.replace(/\n/g, '<br>');
+          html = html.replace(/<\/label>([\s]*?)<br>/g, '</label></div>');
           html = html.replace(/#{6}\s(.+)/g, '<h6>$1</h6>');
           html = html.replace(/#{5}\s(.+)/g, '<h5>$1</h5>');
           html = html.replace(/#{4}\s(.+)/g, '<h4>$1</h4>');
           html = html.replace(/#{3}\s(.+)/g, '<h3>$1</h3>');
           html = html.replace(/#{2}\s(.+)/g, '<h2>$1</h2>');
-          
-          // Convert line breaks (but preserve existing HTML)
-          html = html.replace(/\n/g, '<br>');
           
           entries.push({ date, title, html, filename: file.name });
         }
@@ -653,7 +631,7 @@
           <div class="diary-entry" data-entry-index="${index}">
             <div class="diary-header-clickable" onclick="toggleDiaryEntry(${index})">
               <span class="diary-toggle-icon">▶</span>
-              <span class="diary-date-title">📅 ${entry.date} — ${entry.title}</span>
+              <span class="diary-date-title"> ${entry.date} — ${entry.title}</span>
             </div>
             <div class="diary-content-wrapper" id="diary-content-${index}">
               <div class="diary-content">${entry.html}</div>
