@@ -554,55 +554,135 @@
     
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
     
-    // Function to convert markdown links to HTML
-    function convertMarkdownLinks(text) {
-      // Convert [text](url) to <a href="url">text</a>
-      // This regex matches markdown links but not those starting with ! (images)
-      const linkRegex = /(?<!!)\[([^\]]+)\]\(([^)]+)\)/g;
-      return text.replace(linkRegex, (match, text, url) => {
-        // Handle relative paths by converting to absolute GitHub URLs if needed
-        let finalUrl = url;
-        if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('#')) {
-          // For relative links to Obsidian files, we'll keep them as relative
-          finalUrl = url;
-        }
-        return `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
-      });
-    }
-    
-    // Enhanced markdown processing function
-    function processMarkdown(markdown) {
-      let processed = markdown;
-      
-      // Convert Obsidian image syntax ![[filename.ext]] to HTML directly (preserve GIFs)
-      processed = processed.replace(/!\[\[([^\]]+)\]\]/g, (match, filename) => {
-        // Check if it's a relative path from diary folder
+    // Convert Obsidian image syntax to HTML
+    function processObsidianImages(text) {
+      return text.replace(/!\[\[([^\]]+)\]\]/g, (match, filename) => {
         let imageUrl;
         if (filename.includes('/')) {
           imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/${filename}`;
         } else {
           imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/${filename}`;
         }
-        // Return HTML img tag directly (better for GIFs)
         return `<img src="${imageUrl}" alt="${filename.split('/').pop()}" loading="lazy" onerror="this.style.display='none'">`;
       });
-      
-      // Convert markdown links (but NOT image links - they start with !)
-      processed = convertMarkdownLinks(processed);
-      
-      // Convert any remaining markdown images (standard ![](url) syntax)
-      processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+    }
+    
+    // Convert standard markdown links to HTML
+    function convertMarkdownLinks(text) {
+      // Match [text](url) but not ![](url) which are images
+      const linkRegex = /(?<!!)\[([^\]]+)\]\(([^)]+)\)/g;
+      return text.replace(linkRegex, (match, text, url) => {
+        let finalUrl = url;
+        if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('#')) {
+          finalUrl = url;
+        }
+        return `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+      });
+    }
+    
+    // Convert standard markdown images
+    function convertMarkdownImages(text) {
+      return text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
         return `<img src="${url}" alt="${alt}" loading="lazy" onerror="this.style.display='none'">`;
       });
+    }
+    
+    // Convert markdown lists to HTML
+    function convertMarkdownLists(text) {
+      // Convert bullet points to list items
+      let lines = text.split('\n');
+      let inList = false;
+      let result = [];
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const bulletMatch = line.match(/^- (.+)$/);
+        
+        if (bulletMatch) {
+          if (!inList) {
+            result.push('<ul>');
+            inList = true;
+          }
+          result.push(`<li>${bulletMatch[1]}</li>`);
+        } else {
+          if (inList) {
+            result.push('</ul>');
+            inList = false;
+          }
+          result.push(line);
+        }
+      }
+      
+      if (inList) {
+        result.push('</ul>');
+      }
+      
+      return result.join('\n');
+    }
+    
+    // Main markdown processing function
+    function processMarkdown(markdown) {
+      let processed = markdown;
+      
+      // Process Obsidian images first
+      processed = processObsidianImages(processed);
+      
+      // Process markdown images
+      processed = convertMarkdownImages(processed);
+      
+      // Process markdown links
+      processed = convertMarkdownLinks(processed);
+      
+      // Process markdown lists
+      processed = convertMarkdownLists(processed);
       
       return processed;
+    }
+    
+    // Convert task checkboxes
+    function convertTaskCheckboxes(text) {
+      let processed = text;
+      processed = processed.replace(/- \[ \] (.*?)(?=<|$)/gm, '<div class="task-checkbox"><input type="checkbox" disabled> <label>$1</label></div>');
+      processed = processed.replace(/- \[x\] (.*?)(?=<|$)/gim, '<div class="task-checkbox completed"><input type="checkbox" checked disabled> <label>$1</label></div>');
+      return processed;
+    }
+    
+    // Convert headers
+    function convertHeaders(text) {
+      let processed = text;
+      processed = processed.replace(/^###### (.+)$/gm, '<h6>$1</h6>');
+      processed = processed.replace(/^##### (.+)$/gm, '<h5>$1</h5>');
+      processed = processed.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+      processed = processed.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+      processed = processed.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+      processed = processed.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+      return processed;
+    }
+    
+    // Convert paragraphs while preserving HTML
+    function convertParagraphs(text) {
+      // Split into blocks by double newlines
+      let blocks = text.split(/\n\n+/);
+      blocks = blocks.map(block => {
+        // Skip if it's empty
+        if (!block.trim()) return '';
+        
+        // Skip if it already starts with HTML block elements
+        if (block.trim().match(/^<(h[1-6]|ul|ol|li|div|p)/)) {
+          return block;
+        }
+        
+        // Wrap in paragraph
+        return `<p>${block.replace(/\n/g, '<br>')}</p>`;
+      });
+      return blocks.join('\n\n');
     }
     
     async function fetchDiaryEntries() {
       try {
         const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/diary`);
         if (!response.ok) {
-          diaryContainer.innerHTML = '<div class="empty-diary"> No diary entries yet. Create a diary/ folder with markdown files!</div>';
+          diaryContainer.innerHTML = '<div class="empty-diary">No diary entries yet. Create a diary/ folder with markdown files!</div>';
           return [];
         }
         
@@ -624,37 +704,14 @@
           let contentForDisplay = markdown.replace(/^#\s+.+$/m, '').trim();
           if (!contentForDisplay) contentForDisplay = 'No additional content';
           
-          // Process markdown (convert links, images, etc.)
-          let processedContent = processMarkdown(contentForDisplay);
+          // Process all markdown features in order
+          let processedContent = contentForDisplay;
+          processedContent = processMarkdown(processedContent);
+          processedContent = convertTaskCheckboxes(processedContent);
+          processedContent = convertHeaders(processedContent);
+          processedContent = convertParagraphs(processedContent);
           
-          // Convert task checkboxes - line by line
-          const lines = processedContent.split('\n');
-          let convertedLines = [];
-          for (let line of lines) {
-            if (line.match(/^- \[ \]/)) {
-              // Unchecked task
-              convertedLines.push(line.replace(/^- \[ \]/, '<div class="task-checkbox"><input type="checkbox" disabled> <label>') + '</label></div>');
-            } else if (line.match(/^- \[x\]/i)) {
-              // Checked task
-              convertedLines.push(line.replace(/^- \[x\]/i, '<div class="task-checkbox completed"><input type="checkbox" checked disabled> <label>') + '</label></div>');
-            } else {
-              // Regular line - keep as is
-              convertedLines.push(line);
-            }
-          }
-          let html = convertedLines.join('\n');
-          
-          // Convert headers
-          html = html.replace(/#{6}\s(.+)/g, '<h6>$1</h6>');
-          html = html.replace(/#{5}\s(.+)/g, '<h5>$1</h5>');
-          html = html.replace(/#{4}\s(.+)/g, '<h4>$1</h4>');
-          html = html.replace(/#{3}\s(.+)/g, '<h3>$1</h3>');
-          html = html.replace(/#{2}\s(.+)/g, '<h2>$1</h2>');
-          
-          // Convert line breaks (but preserve existing HTML)
-          html = html.replace(/\n/g, '<br>');
-          
-          entries.push({ date, title, html, filename: file.name });
+          entries.push({ date, title, html: processedContent, filename: file.name });
         }
         
         return entries;
@@ -696,7 +753,7 @@
           <div class="diary-entry" data-entry-index="${index}">
             <div class="diary-header-clickable" onclick="toggleDiaryEntry(${index})">
               <span class="diary-toggle-icon">▶</span>
-              <span class="diary-date-title"> ${entry.date} — ${entry.title}</span>
+              <span class="diary-date-title">${entry.date} — ${entry.title}</span>
             </div>
             <div class="diary-content-wrapper" id="diary-content-${index}">
               <div class="diary-content">${entry.html}</div>
