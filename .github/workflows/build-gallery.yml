@@ -228,10 +228,6 @@ jobs:
                 text-decoration: underline;
               }
               
-              .diary-content a:hover {
-                color: #8c2b1a;
-              }
-              
               .diary-content img {
                 max-width: 100%;
                 height: auto;
@@ -260,14 +256,12 @@ jobs:
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                margin: 0 0 2px 0;
-                line-height: 1.3;
+                margin: 6px 0;
               }
               
               .task-checkbox input[type="checkbox"] {
-                width: 14px;
-                height: 14px;
-                margin: 0;
+                width: 16px;
+                height: 16px;
                 cursor: default;
                 accent-color: #7b4c3a;
               }
@@ -280,7 +274,6 @@ jobs:
               .task-checkbox label {
                 cursor: default;
                 flex: 1;
-                margin: 0;
               }
               
               .empty-diary {
@@ -529,7 +522,7 @@ jobs:
                 </div>
               </div>
               
-              <footer> <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — Obsidian notes intergration </footer>
+              <footer> <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — Built with Obsidian </footer>
             </div>
             
             <div id="lightbox" class="lightbox" onclick="closeLightbox()">
@@ -623,9 +616,6 @@ jobs:
                     // Convert Obsidian image syntax to GitHub raw URLs
                     let html = contentForDisplay;
                     html = html.replace(/!\[\[([^\]]+)\]\]/g, `<img src="https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/$1" alt="image" loading="lazy" onerror="this.style.display='none'">`);
-                    
-                    // Convert markdown links to HTML links
-                    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
                     
                     // Convert task checkboxes - line by line to avoid affecting images
                     const lines = html.split('\n');
