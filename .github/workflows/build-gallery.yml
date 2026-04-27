@@ -516,8 +516,8 @@ jobs:
           </head>
           <body>
             <div class="container">
-              <header>     /* ✨ NEW: */
-                <img src="/assets/images/NattyLogoMetal.webp" alt="Logo" style="height: 50px; vertical-align: middle; margin-right: 10px;">
+              <header>
+                <img src="https://raw.githubusercontent.com/NatalieC001/Hummingbird-in-Paper/main/assets/images/NattyLogoMetal.webp" alt="Logo" style="height: 50px; vertical-align: middle; margin-right: 10px;">
                 <h1>Hummingbird in Paper</h1>
                 <div class="subhead">A field notebook tracing the intersection of traditional papercraft, 3D printing, AI, and Blender automation.</div>
               </header>
