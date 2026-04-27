@@ -1,3 +1,6 @@
+no, its still broken. Nothing's appearing. The gallery and everything used to appear and load. Now nothing's loading. There's still a broken logo image, 
+
+the below version used to work 
 name: Build Gallery with Obsidian Diary
 
 on:
@@ -54,43 +57,6 @@ jobs:
                 color: #2c2a26;
               }
               
-              .status-panel {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: rgba(248, 245, 238, 0.95);
-                border: 2px solid #bdab92;
-                border-radius: 4px;
-                padding: 16px 24px;
-                font-size: 0.85rem;
-                z-index: 9999;
-                max-width: 300px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-                display: none;
-              }
-              
-              .status-panel.show { display: block; }
-              .status-panel.loading { border-color: #7b88cc; }
-              .status-panel.success { border-color: #6b9a4a; }
-              .status-panel.error { border-color: #c84a3a; }
-              .status-panel.warning { border-color: #c89a3a; }
-              
-              .status-icon {
-                display: inline-block;
-                margin-right: 8px;
-                font-weight: bold;
-              }
-              
-              .status-panel.loading .status-icon::after { content: '⟳'; animation: spin 1.5s linear infinite; }
-              .status-panel.success .status-icon::after { content: '✓'; color: #6b9a4a; }
-              .status-panel.error .status-icon::after { content: '✕'; color: #c84a3a; }
-              .status-panel.warning .status-icon::after { content: '⚠'; color: #c89a3a; }
-              
-              @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-              
-              .status-text { display: block; margin-top: 8px; line-height: 1.4; }
-              .status-detail { display: block; font-size: 0.75rem; color: #7a6d59; margin-top: 4px; }
-              
               .container { 
                 max-width: 1600px; 
                 margin: 0 auto; 
@@ -134,11 +100,6 @@ jobs:
                   order: -1;
                   margin-bottom: 20px;
                 }
-                .status-panel {
-                  position: static;
-                  margin-bottom: 20px;
-                  max-width: none;
-                }
               }
               
               .diary-header {
@@ -158,6 +119,11 @@ jobs:
                 display: flex;
                 align-items: center;
                 gap: 8px;
+              }
+              
+              .diary-header h2::before {
+                content: '';
+                font-size: 1.4rem;
               }
               
               .diary-entries {
@@ -287,6 +253,30 @@ jobs:
                 padding: 2px 5px;
                 border-radius: 2px;
                 font-size: 0.85em;
+              }
+              
+              .task-checkbox {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin: 6px 0;
+              }
+              
+              .task-checkbox input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                cursor: default;
+                accent-color: #7b4c3a;
+              }
+              
+              .task-checkbox.completed label {
+                text-decoration: line-through;
+                opacity: 0.7;
+              }
+              
+              .task-checkbox label {
+                cursor: default;
+                flex: 1;
               }
               
               .empty-diary {
@@ -535,7 +525,7 @@ jobs:
                 </div>
               </div>
               
-              <footer><a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — Built with Obsidian</footer>
+              <footer> <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — Built with Obsidian </footer>
             </div>
             
             <div id="lightbox" class="lightbox" onclick="closeLightbox()">
@@ -555,43 +545,7 @@ jobs:
               </div>
             </div>
             
-            <div id="status-panel" class="status-panel"></div>
-            
             <script>
-              class StatusManager {
-                constructor() { 
-                  this.panel = document.getElementById('status-panel'); 
-                }
-                show(state, message, detail = '') {
-                  this.panel.className = `status-panel show ${state}`;
-                  this.panel.innerHTML = `<span class="status-icon"></span><span class="status-text">${message}</span>${detail ? `<span class="status-detail">${detail}</span>` : ''}`;
-                  console.log(`[${state.toUpperCase()}] ${message}`, detail);
-                }
-                loading(message, detail = '') { this.show('loading', message, detail); }
-                success(message, detail = '') { this.show('success', message, detail); }
-                error(message, detail = '') { this.show('error', message, detail); }
-                warning(message, detail = '') { this.show('warning', message, detail); }
-              }
-              
-              const status = new StatusManager();
-              
-              async function fetchWithRetry(url, maxRetries = 3, delay = 1000) {
-                for (let i = 0; i < maxRetries; i++) {
-                  try {
-                    status.loading(`Fetching: ${url.split('/').pop()}...`, `Attempt ${i + 1}/${maxRetries}`);
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    return response;
-                  } catch (error) {
-                    console.log(`Fetch failed: ${url} (attempt ${i + 1}):`, error.message);
-                    if (i < maxRetries - 1) { 
-                      await new Promise(r => setTimeout(r, delay * (i + 1))); 
-                    }
-                  }
-                }
-                throw new Error(`Failed to fetch after ${maxRetries} attempts: ${url}`);
-              }
-              
               const GITHUB_USER = 'NatalieC001';
               const GITHUB_REPO = 'Hummingbird-in-Paper';
               const BRANCH = 'main';
@@ -607,27 +561,23 @@ jobs:
               const lightboxFilename = document.getElementById('lightbox-filename');
               
               function openLightbox(url, isVideo, description, filename) {
-                try {
-                  lightboxCaption.innerHTML = description || 'No description available';
-                  lightboxFilename.textContent = filename || '';
-                  if (isVideo) {
-                    lightboxImg.style.display = 'none';
-                    lightboxVideo.style.display = 'block';
-                    lightboxVideo.src = url;
-                    lightboxVideo.load();
-                    lightboxVideo.play().catch(e => console.log('Video autoplay blocked'));
-                  } else {
-                    lightboxVideo.style.display = 'none';
-                    lightboxVideo.pause();
-                    lightboxVideo.src = '';
-                    lightboxImg.style.display = 'block';
-                    lightboxImg.src = url;
-                  }
-                  lightbox.style.display = 'flex';
-                  document.body.style.overflow = 'hidden';
-                } catch (error) {
-                  console.error('Lightbox error:', error.message);
+                lightboxCaption.innerHTML = description || 'No description available';
+                lightboxFilename.textContent = filename || '';
+                if (isVideo) {
+                  lightboxImg.style.display = 'none';
+                  lightboxVideo.style.display = 'block';
+                  lightboxVideo.src = url;
+                  lightboxVideo.load();
+                  lightboxVideo.play();
+                } else {
+                  lightboxVideo.style.display = 'none';
+                  lightboxVideo.pause();
+                  lightboxVideo.src = '';
+                  lightboxImg.style.display = 'block';
+                  lightboxImg.src = url;
                 }
+                lightbox.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
               }
               
               function closeLightbox() {
@@ -640,111 +590,223 @@ jobs:
               
               document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
               
-              function processMarkdown(text) {
-                try {
-                  let processed = text;
-                  processed = processed.replace(/!\[\[([^\]]+)\]\]/g, (match, filename) => {
-                    const imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/${filename}`;
-                    return `<img src="${imageUrl}" alt="${filename}" loading="lazy" onerror="this.style.display='none'">`;
-                  });
-                  processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => `<img src="${url}" alt="${alt}" loading="lazy" onerror="this.style.display='none'">`);
-                  processed = processed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => `<a href="${url}" target="_blank">${text}</a>`);
-                  processed = processed.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-                  processed = processed.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-                  processed = processed.replace(/^# (.+)$/gm, '<h1>$1</h1>');
-                  return processed;
-                } catch (e) {
-                  console.log('Markdown processing error:', e.message);
-                  return text;
+              // Convert Obsidian image syntax to HTML
+              function processObsidianImages(text) {
+                return text.replace(/!\[\[([^\]]+)\]\]/g, (match, filename) => {
+                  let imageUrl;
+                  if (filename.includes('/')) {
+                    imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/${filename}`;
+                  } else {
+                    imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/${filename}`;
+                  }
+                  return `<img src="${imageUrl}" alt="${filename.split('/').pop()}" loading="lazy" onerror="this.style.display='none'">`;
+                });
+              }
+              
+              // Convert standard markdown links to HTML
+              function convertMarkdownLinks(text) {
+                // Match [text](url) but not ![](url) which are images
+                const linkRegex = /(?<!!)\[([^\]]+)\]\(([^)]+)\)/g;
+                return text.replace(linkRegex, (match, text, url) => {
+                  let finalUrl = url;
+                  if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('#')) {
+                    finalUrl = url;
+                  }
+                  return `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+                });
+              }
+              
+              // Convert standard markdown images
+              function convertMarkdownImages(text) {
+                return text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+                  return `<img src="${url}" alt="${alt}" loading="lazy" onerror="this.style.display='none'">`;
+                });
+              }
+              
+              // Convert markdown lists to HTML
+              function convertMarkdownLists(text) {
+                // Convert bullet points to list items
+                let lines = text.split('\n');
+                let inList = false;
+                let result = [];
+                
+                for (let i = 0; i < lines.length; i++) {
+                  const line = lines[i];
+                  const bulletMatch = line.match(/^- (.+)$/);
+                  
+                  if (bulletMatch) {
+                    if (!inList) {
+                      result.push('<ul>');
+                      inList = true;
+                    }
+                    result.push(`<li>${bulletMatch[1]}</li>`);
+                  } else {
+                    if (inList) {
+                      result.push('</ul>');
+                      inList = false;
+                    }
+                    result.push(line);
+                  }
                 }
+                
+                if (inList) {
+                  result.push('</ul>');
+                }
+                
+                return result.join('\n');
+              }
+              
+              // Main markdown processing function
+              function processMarkdown(markdown) {
+                let processed = markdown;
+                
+                // Process Obsidian images first
+                processed = processObsidianImages(processed);
+                
+                // Process markdown images
+                processed = convertMarkdownImages(processed);
+                
+                // Process markdown links
+                processed = convertMarkdownLinks(processed);
+                
+                // Process markdown lists
+                processed = convertMarkdownLists(processed);
+                
+                return processed;
+              }
+              
+              // Convert task checkboxes
+              function convertTaskCheckboxes(text) {
+                let processed = text;
+                processed = processed.replace(/- \[ \] (.*?)(?=<|$)/gm, '<div class="task-checkbox"><input type="checkbox" disabled> <label>$1</label></div>');
+                processed = processed.replace(/- \[x\] (.*?)(?=<|$)/gim, '<div class="task-checkbox completed"><input type="checkbox" checked disabled> <label>$1</label></div>');
+                return processed;
+              }
+              
+              // Convert headers
+              function convertHeaders(text) {
+                let processed = text;
+                processed = processed.replace(/^###### (.+)$/gm, '<h6>$1</h6>');
+                processed = processed.replace(/^##### (.+)$/gm, '<h5>$1</h5>');
+                processed = processed.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+                processed = processed.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+                processed = processed.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+                processed = processed.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+                return processed;
+              }
+              
+              // Convert paragraphs while preserving HTML
+              function convertParagraphs(text) {
+                // Split into blocks by double newlines
+                let blocks = text.split(/\n\n+/);
+                blocks = blocks.map(block => {
+                  // Skip if it's empty
+                  if (!block.trim()) return '';
+                  
+                  // Skip if it already starts with HTML block elements
+                  if (block.trim().match(/^<(h[1-6]|ul|ol|li|div|p)/)) {
+                    return block;
+                  }
+                  
+                  // Wrap in paragraph
+                  return `<p>${block.replace(/\n/g, '<br>')}</p>`;
+                });
+                return blocks.join('\n\n');
               }
               
               async function fetchDiaryEntries() {
                 try {
-                  status.loading('Loading diary entries...');
-                  const response = await fetchWithRetry(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/diary`, 3);
-                  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                  const contents = await response.json();
-                  const mdFiles = contents.filter(item => item.type === 'file' && item.name.endsWith('.md')).sort((a, b) => b.name.localeCompare(a.name));
-                  
-                  if (mdFiles.length === 0) {
-                    diaryContainer.innerHTML = '<div class="empty-diary">No diary entries yet</div>';
+                  const response = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/diary`);
+                  if (!response.ok) {
+                    diaryContainer.innerHTML = '<div class="empty-diary">No diary entries yet. Create a diary/ folder with markdown files!</div>';
                     return [];
                   }
                   
-                  status.loading(`Processing ${mdFiles.length} diary entries...`);
+                  const contents = await response.json();
+                  const mdFiles = contents.filter(item => item.type === 'file' && item.name.endsWith('.md'));
+                  mdFiles.sort((a, b) => b.name.localeCompare(a.name));
+                  
                   const entries = [];
                   for (const file of mdFiles) {
-                    try {
-                      const fileResponse = await fetchWithRetry(file.download_url, 2);
-                      const markdown = await fileResponse.text();
-                      const date = file.name.replace('.md', '');
-                      const titleMatch = markdown.match(/^#\s+(.+)$/m);
-                      const title = titleMatch ? titleMatch[1] : 'Untitled';
-                      let content = markdown.replace(/^#\s+.+$/m, '').trim() || 'No content';
-                      content = processMarkdown(content);
-                      entries.push({ date, title, html: content });
-                    } catch (error) {
-                      console.log(`Failed to process diary: ${file.name}`, error.message);
-                    }
+                    const fileResponse = await fetch(file.download_url);
+                    let markdown = await fileResponse.text();
+                    const date = file.name.replace('.md', '');
+                    
+                    // Extract title (first line that starts with # )
+                    const titleMatch = markdown.match(/^#\s+(.+)$/m);
+                    const title = titleMatch ? titleMatch[1] : 'Untitled';
+                    
+                    // Remove the first H1 from content for display
+                    let contentForDisplay = markdown.replace(/^#\s+.+$/m, '').trim();
+                    if (!contentForDisplay) contentForDisplay = 'No additional content';
+                    
+                    // Process all markdown features in order
+                    let processedContent = contentForDisplay;
+                    processedContent = processMarkdown(processedContent);
+                    processedContent = convertTaskCheckboxes(processedContent);
+                    processedContent = convertHeaders(processedContent);
+                    processedContent = convertParagraphs(processedContent);
+                    
+                    entries.push({ date, title, html: processedContent, filename: file.name });
                   }
-                  status.success(`Loaded ${entries.length} diary entries`);
+                  
                   return entries;
                 } catch (error) {
-                  console.error('Diary fetch failed:', error.message);
-                  status.error('Could not load diary', error.message.substring(0, 50));
-                  diaryContainer.innerHTML = `<div class="empty-diary">⚠️ Error: ${error.message.substring(0, 50)}</div>`;
+                  console.error('Error fetching diary:', error);
+                  diaryContainer.innerHTML = '<div class="empty-diary">Error loading diary entries</div>';
                   return [];
                 }
               }
               
+              // Store expanded states globally
               window.diaryExpandedStates = [];
+              
               window.toggleDiaryEntry = function(index) {
-                try {
-                  const wrapper = document.getElementById(`diary-content-${index}`);
-                  const header = document.querySelector(`.diary-entry[data-entry-index="${index}"] .diary-header-clickable`);
-                  if (!wrapper || !header) return;
-                  if (window.diaryExpandedStates[index]) {
-                    wrapper.classList.remove('expanded');
-                    header.classList.remove('expanded');
-                    window.diaryExpandedStates[index] = false;
-                  } else {
-                    wrapper.classList.add('expanded');
-                    header.classList.add('expanded');
-                    window.diaryExpandedStates[index] = true;
-                  }
-                } catch (error) {
-                  console.error('Diary toggle failed:', error.message);
+                const wrapper = document.getElementById(`diary-content-${index}`);
+                const header = document.querySelector(`.diary-entry[data-entry-index="${index}"] .diary-header-clickable`);
+                
+                if (!wrapper || !header) return;
+                
+                if (window.diaryExpandedStates[index]) {
+                  wrapper.classList.remove('expanded');
+                  header.classList.remove('expanded');
+                  window.diaryExpandedStates[index] = false;
+                } else {
+                  wrapper.classList.add('expanded');
+                  header.classList.add('expanded');
+                  window.diaryExpandedStates[index] = true;
                 }
               }
               
               async function displayDiary() {
                 const entries = await fetchDiaryEntries();
                 if (entries.length === 0) return;
+                
                 window.diaryExpandedStates = new Array(entries.length).fill(false);
-                diaryContainer.innerHTML = entries.map((entry, index) => `
-                  <div class="diary-entry" data-entry-index="${index}">
-                    <div class="diary-header-clickable" onclick="toggleDiaryEntry(${index})">
-                      <span class="diary-toggle-icon">▶</span>
-                      <span>${entry.date} — ${entry.title}</span>
+                
+                diaryContainer.innerHTML = entries.map((entry, index) => {
+                  return `
+                    <div class="diary-entry" data-entry-index="${index}">
+                      <div class="diary-header-clickable" onclick="toggleDiaryEntry(${index})">
+                        <span class="diary-toggle-icon">▶</span>
+                        <span class="diary-date-title">${entry.date} — ${entry.title}</span>
+                      </div>
+                      <div class="diary-content-wrapper" id="diary-content-${index}">
+                        <div class="diary-content">${entry.html}</div>
+                      </div>
                     </div>
-                    <div class="diary-content-wrapper" id="diary-content-${index}">
-                      <div class="diary-content">${entry.html}</div>
-                    </div>
-                  </div>
-                `).join('');
+                  `;
+                }).join('');
               }
               
               async function fetchAlbumFolders() {
                 try {
-                  status.loading('Scanning gallery...');
-                  const response = await fetchWithRetry(API_BASE, 3);
-                  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                  const response = await fetch(API_BASE);
+                  if (!response.ok) return [];
                   const contents = await response.json();
                   return contents.filter(item => item.type === 'dir').map(folder => folder.name);
                 } catch (error) {
-                  console.error('Album scan failed:', error.message);
-                  status.warning('Could not load gallery', error.message.substring(0, 50));
+                  console.error('Error fetching folders:', error);
                   return [];
                 }
               }
@@ -753,33 +815,43 @@ jobs:
               
               async function fetchDescriptions() {
                 try {
-                  const response = await fetchWithRetry(`${BASE_RAW}descriptions.txt`, 2);
+                  const response = await fetch(`${BASE_RAW}descriptions.txt`);
                   if (!response.ok) return;
                   const text = await response.text();
                   const lines = text.split(/\r?\n/);
-                  let currentKey = null, currentValue = [];
+                  let currentKey = null;
+                  let currentValue = [];
+                  
                   for (let i = 0; i < lines.length; i++) {
                     const line = lines[i];
                     const colonIndex = line.indexOf('|');
-                    const isNewEntry = colonIndex > 0 && (line.substring(0, colonIndex).includes('.') || line.substring(0, colonIndex).startsWith('DIR_'));
+                    const isNewEntry = colonIndex > 0 && (
+                      line.substring(0, colonIndex).includes('.') || 
+                      line.substring(0, colonIndex).startsWith('DIR_')
+                    );
+                    
                     if (isNewEntry) {
-                      if (currentKey) globalDescriptions[currentKey] = currentValue.join(' ').trim();
+                      if (currentKey) {
+                        globalDescriptions[currentKey] = currentValue.join(' ').trim();
+                      }
                       currentKey = line.substring(0, colonIndex).trim();
                       currentValue = [line.substring(colonIndex + 1).trim()];
                     } else if (currentKey && line.trim()) {
                       currentValue.push(line.trim());
                     }
                   }
-                  if (currentKey) globalDescriptions[currentKey] = currentValue.join(' ').trim();
+                  if (currentKey) {
+                    globalDescriptions[currentKey] = currentValue.join(' ').trim();
+                  }
                 } catch (error) {
-                  console.log('Descriptions optional - continuing');
+                  console.error('Error fetching descriptions:', error);
                 }
               }
               
               async function fetchMediaInFolder(folderName) {
                 try {
-                  const response = await fetchWithRetry(`${API_BASE}/${folderName}`, 2);
-                  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                  const response = await fetch(`${API_BASE}/${folderName}`);
+                  if (!response.ok) return [];
                   const contents = await response.json();
                   const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
                   const videoExtensions = ['mp4', 'mov'];
@@ -798,112 +870,96 @@ jobs:
                     };
                   });
                 } catch (error) {
-                  console.log(`Media fetch failed for ${folderName}`, error.message);
+                  console.error(`Error fetching media from ${folderName}:`, error);
                   return [];
                 }
               }
               
               function getFolderDisplayName(folderName) {
-                const map = { 
-                  '3d_modeling': '3D Modeling', 
-                  'blender_plugin': 'Blender Plugin', 
-                  'materials': 'Materials', 
-                  'paper_cutting': 'Paper Cutting', 
-                  'progress_photos': 'Progress Photos', 
-                  'reference_images': 'Reference Images', 
-                  'templates': 'Templates' 
+                const map = {
+                  '3d_modeling': '3D Modeling',
+                  'blender_plugin': 'Blender Plugin',
+                  'materials': 'Materials',
+                  'paper_cutting': 'Paper Cutting',
+                  'progress_photos': 'Progress Photos',
+                  'reference_images': 'Reference Images',
+                  'templates': 'Templates'
                 };
                 return map[folderName] || folderName;
               }
               
               async function buildGallery() {
-                try {
-                  container.innerHTML = '<div style="text-align:center; padding:60px;">📦 Building gallery...</div>';
-                  status.loading('Building gallery...');
-                  await fetchDescriptions();
-                  const folders = await fetchAlbumFolders();
-                  if (folders.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; padding:60px; color:#9a8a75;">⚠️ No gallery folders found. Create folders in gallery/</div>';
-                    status.warning('No gallery content', 'Create folders in gallery/');
-                    return;
-                  }
-                  status.loading(`Building ${folders.length} albums...`);
-                  container.innerHTML = '';
-                  let totalItems = 0;
-                  for (const folder of folders) {
-                    try {
-                      const mediaItems = await fetchMediaInFolder(folder);
-                      totalItems += mediaItems.length;
-                      const albumDiv = document.createElement('div');
-                      albumDiv.className = 'album';
-                      const folderDesc = globalDescriptions[`DIR_${folder}`] || '';
-                      albumDiv.innerHTML = `
-                        <h2>${getFolderDisplayName(folder)}</h2>
-                        ${folderDesc ? `<div class="album-description">${folderDesc}</div>` : ''}
-                        <div class="gallery-grid" id="grid-${folder}"></div>
-                      `;
-                      container.appendChild(albumDiv);
-                      const grid = albumDiv.querySelector('.gallery-grid');
-                      if (mediaItems.length === 0) {
-                        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#9a8a75;padding:40px;">No media in this folder</div>';
+                container.innerHTML = '<div style="text-align:center; padding:60px;">Loading gallery...</div>';
+                await fetchDescriptions();
+                let folders = await fetchAlbumFolders();
+                
+                if (folders.length === 0) {
+                  container.innerHTML = '<div class="empty-album">No albums found</div>';
+                  return;
+                }
+                
+                container.innerHTML = '';
+                
+                for (const folder of folders) {
+                  const mediaItems = await fetchMediaInFolder(folder);
+                  const albumDiv = document.createElement('div');
+                  albumDiv.className = 'album';
+                  const folderDesc = globalDescriptions[`DIR_${folder}`] || '';
+                  albumDiv.innerHTML = `
+                    <h2>${getFolderDisplayName(folder)}</h2>
+                    ${folderDesc ? `<div class="album-description">${folderDesc}</div>` : ''}
+                    <div class="gallery-grid" id="grid-${folder}"></div>
+                  `;
+                  container.appendChild(albumDiv);
+                  const grid = albumDiv.querySelector('.gallery-grid');
+                  
+                  if (mediaItems.length === 0) {
+                    grid.innerHTML = '<div class="empty-album">No images yet</div>';
+                  } else {
+                    mediaItems.forEach(media => {
+                      const item = document.createElement('div');
+                      item.className = 'gallery-item';
+                      item.onclick = () => openLightbox(media.url, media.isVideo, media.description, media.name);
+                      if (media.isVideo) {
+                        const video = document.createElement('video');
+                        video.src = media.url;
+                        video.muted = true;
+                        video.preload = 'metadata';
+                        video.onmouseenter = function() { this.play(); };
+                        video.onmouseleave = function() { this.pause(); this.currentTime = 0; };
+                        item.appendChild(video);
                       } else {
-                        mediaItems.forEach(media => {
-                          try {
-                            const item = document.createElement('div');
-                            item.className = 'gallery-item';
-                            item.onclick = () => openLightbox(media.url, media.isVideo, media.description, media.name);
-                            if (media.isVideo) {
-                              const video = document.createElement('video');
-                              video.src = media.url;
-                              video.muted = true;
-                              video.preload = 'metadata';
-                              video.onmouseenter = function() { this.play().catch(e => console.log('Video play failed')); };
-                              video.onmouseleave = function() { this.pause(); this.currentTime = 0; };
-                              item.appendChild(video);
-                            } else {
-                              const img = document.createElement('img');
-                              img.src = media.url;
-                              img.alt = media.name;
-                              img.loading = 'lazy';
-                              item.appendChild(img);
-                            }
-                            const caption = document.createElement('div');
-                            caption.className = 'gallery-item-caption';
-                            const plainText = media.description ? media.description.replace(/<[^>]*>/g, '') : '';
-                            caption.innerHTML = `<div class="caption-title">${media.name.replace(/\.[^/.]+$/, '').substring(0, 35)}</div><div class="caption-text">${plainText.substring(0, 80)}${plainText.length > 80 ? '...' : ''}</div>`;
-                            item.appendChild(caption);
-                            grid.appendChild(item);
-                          } catch (error) {
-                            console.log(`Failed to render: ${media.name}`, error.message);
-                          }
-                        });
+                        const img = document.createElement('img');
+                        img.src = media.url;
+                        img.alt = media.name;
+                        img.loading = 'lazy';
+                        item.appendChild(img);
                       }
-                    } catch (error) {
-                      console.log(`Failed to build album ${folder}`, error.message);
-                    }
+                      const caption = document.createElement('div');
+                      caption.className = 'gallery-item-caption';
+                      const plainText = media.description ? media.description.replace(/<[^>]*>/g, '') : '';
+                      caption.innerHTML = `
+                        <div class="caption-title">${media.name.replace(/\.[^/.]+$/, '').substring(0, 35)}</div>
+                        <div class="caption-text">${plainText.substring(0, 80)}${plainText.length > 80 ? '...' : 'Click to read'}</div>
+                      `;
+                      item.appendChild(caption);
+                      grid.appendChild(item);
+                    });
                   }
-                  status.success(`Gallery complete`, `${totalItems} items loaded`);
-                } catch (error) {
-                  console.error('Gallery build failed:', error.message);
-                  container.innerHTML = `<div style="text-align:center; padding:60px; color:#c84a3a;">❌ Error: ${error.message}</div>`;
-                  status.error('Gallery build failed', error.message.substring(0, 100));
                 }
               }
               
-              status.loading('Initializing gallery...');
-              Promise.all([buildGallery(), displayDiary()]).catch(e => {
-                console.error('Critical initialization error:', e.message);
-                status.error('Initialization failed', e.message);
-              });
+              Promise.all([buildGallery(), displayDiary()]);
             </script>
           </body>
-          </html>
           HTML
           
-          echo "✅ Gallery HTML created at _site/index.html"
+          echo "Gallery HTML file created successfully at _site/index.html"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./_site
+
+
