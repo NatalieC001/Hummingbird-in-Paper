@@ -1,4 +1,4 @@
-name: Build Gallery with Obsidian Diary
+name: Build Gallery with Obsidian Diary   // ==== WORKING ====
 
 on:
   push:
