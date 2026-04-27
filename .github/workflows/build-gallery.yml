@@ -329,6 +329,19 @@ jobs:
                 box-shadow: inset 0 0 40px rgba(210, 195, 175, 0.15), 0 5px 15px rgba(0,0,0,0.03);
                 position: relative;
               }
+
+              /* ✨ NEW: Offset dashed border style - add this block below */
+              .album::before {
+                content: '';
+                position: absolute;
+                top: 8px;
+                left: 8px;
+                right: 8px;
+                bottom: 8px;
+                border: 1px dashed #453a2b;
+                border-radius: 1px;
+                pointer-events: none;
+              }
               
               .album h2 {
                 font-family: 'Bricolage Grotesque', sans-serif;
