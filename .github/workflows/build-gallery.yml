@@ -1,4 +1,4 @@
-name: Build Gallery with Obsidian Diary
+name: Build jigglypuff Gallery with Obsidian Diary
 
 on:
   push:
