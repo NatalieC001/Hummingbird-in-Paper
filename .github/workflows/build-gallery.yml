@@ -1,42 +1,909 @@
-name: Build Gallery
+name: Build Gallery with Obsidian Diary
 
 on:
   push:
     branches:
       - main
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '14'
+          node-version: '20'
 
-      - name: Install dependencies
+      - name: Install markdown parser
+        run: npm install -g marked
+
+      - name: Create complete gallery HTML file with diary section
         run: |
-          npm install
-          npm audit fix --force
+          mkdir -p _site
+          
+          cat > _site/index.html << 'HTML'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Hummingbird in Paper - Process Gallery & Diary</title>
+            <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=Zalando+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              
+              body {
+                font-family: 'Zalando Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+                background-color: #eaddcb;
+                background-image: 
+                  linear-gradient(rgba(170, 155, 135, 0.3) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(170, 155, 135, 0.3) 1px, transparent 1px),
+                  radial-gradient(rgba(150, 135, 115, 0.2) 1px, transparent 1px);
+                background-size: 50px 50px, 50px 50px, 10px 10px;
+                background-position: -1px -1px, -1px -1px, 0 0;
+                padding: 30px 20px;
+                color: #2c2a26;
+              }
+              
+              .status-panel {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(248, 245, 238, 0.95);
+                border: 2px solid #bdab92;
+                border-radius: 4px;
+                padding: 16px 24px;
+                font-size: 0.85rem;
+                z-index: 9999;
+                max-width: 300px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+                display: none;
+              }
+              
+              .status-panel.show { display: block; }
+              .status-panel.loading { border-color: #7b88cc; }
+              .status-panel.success { border-color: #6b9a4a; }
+              .status-panel.error { border-color: #c84a3a; }
+              .status-panel.warning { border-color: #c89a3a; }
+              
+              .status-icon {
+                display: inline-block;
+                margin-right: 8px;
+                font-weight: bold;
+              }
+              
+              .status-panel.loading .status-icon::after { content: '⟳'; animation: spin 1.5s linear infinite; }
+              .status-panel.success .status-icon::after { content: '✓'; color: #6b9a4a; }
+              .status-panel.error .status-icon::after { content: '✕'; color: #c84a3a; }
+              .status-panel.warning .status-icon::after { content: '⚠'; color: #c89a3a; }
+              
+              @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+              
+              .status-text { display: block; margin-top: 8px; line-height: 1.4; }
+              .status-detail { display: block; font-size: 0.75rem; color: #7a6d59; margin-top: 4px; }
+              
+              .container { 
+                max-width: 1600px; 
+                margin: 0 auto; 
+                position: relative; 
+              }
+              
+              .two-columns {
+                display: flex;
+                gap: 30px;
+                align-items: flex-start;
+              }
+              
+              .gallery-main {
+                flex: 3;
+                min-width: 0;
+              }
+              
+              .diary-sidebar {
+                flex: 1;
+                min-width: 350px;
+                max-width: 450px;
+                background: rgba(248, 245, 238, 0.92);
+                backdrop-filter: blur(4px);
+                border: 1px solid #c8b9a1;
+                border-radius: 2px;
+                position: sticky;
+                top: 20px;
+                max-height: calc(100vh - 40px);
+                overflow-y: auto;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+              }
+              
+              @media (max-width: 900px) {
+                .two-columns {
+                  flex-direction: column;
+                }
+                .diary-sidebar {
+                  max-width: none;
+                  position: static;
+                  max-height: 500px;
+                  order: -1;
+                  margin-bottom: 20px;
+                }
+                .status-panel {
+                  position: static;
+                  margin-bottom: 20px;
+                  max-width: none;
+                }
+              }
+              
+              .diary-header {
+                padding: 20px 20px 12px;
+                border-bottom: 2px solid #bdab92;
+                background: rgba(250, 248, 242, 0.95);
+                position: sticky;
+                top: 0;
+                z-index: 10;
+              }
+              
+              .diary-header h2 {
+                font-family: 'Bricolage Grotesque', sans-serif;
+                font-size: 1.6rem;
+                font-weight: 600;
+                color: #4a3424;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              }
+              
+              .diary-entries {
+                padding: 10px 20px 20px;
+              }
+              
+              .diary-entry {
+                background: #fdfcfa;
+                border: 1px solid #d4c5ae;
+                margin-bottom: 12px;
+                border-radius: 2px;
+                overflow: hidden;
+              }
+              
+              .diary-header-clickable {
+                background: #eaddcb;
+                padding: 12px 16px;
+                cursor: pointer;
+                user-select: none;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: background 0.2s ease;
+                font-family: 'Bricolage Grotesque', sans-serif;
+                font-weight: 600;
+                color: #3a2a1c;
+              }
+              
+              .diary-header-clickable:hover {
+                background: #d8cbbc;
+              }
+              
+              .diary-toggle-icon {
+                font-size: 0.9rem;
+                transition: transform 0.2s ease;
+                display: inline-block;
+                width: 20px;
+              }
+              
+              .diary-header-clickable.expanded .diary-toggle-icon {
+                transform: rotate(90deg);
+              }
+              
+              .diary-content-wrapper {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease-out;
+              }
+              
+              .diary-content-wrapper.expanded {
+                max-height: 2000px;
+                transition: max-height 0.5s ease-in;
+              }
+              
+              .diary-content {
+                padding: 16px;
+                border-top: 1px solid #d4c5ae;
+                font-size: 0.9rem;
+                line-height: 1.6;
+                color: #4a3b2e;
+              }
+              
+              .diary-content h1 {
+                font-size: 1.2rem;
+                margin: 0 0 12px 0;
+                font-family: 'Bricolage Grotesque', sans-serif;
+                color: #3a2a1c;
+              }
+              
+              .diary-content h2 {
+                font-size: 1rem;
+                margin: 12px 0 8px;
+                font-family: 'Bricolage Grotesque', sans-serif;
+                color: #4a3424;
+                border-left: 3px solid #bdab92;
+                padding-left: 10px;
+              }
+              
+              .diary-content h3 {
+                font-size: 0.95rem;
+                margin: 10px 0 6px;
+                font-family: 'Bricolage Grotesque', sans-serif;
+                color: #5a4b3a;
+              }
+              
+              .diary-content ul, .diary-content ol {
+                margin: 8px 0 8px 20px;
+              }
+              
+              .diary-content li {
+                margin: 4px 0;
+              }
+              
+              .diary-content p {
+                margin: 8px 0;
+              }
+              
+              .diary-content a {
+                color: #7b4c3a;
+                text-decoration: underline;
+              }
+              
+              .diary-content a:hover {
+                color: #4a3424;
+                text-decoration: none;
+              }
+              
+              .diary-content img {
+                max-width: 100%;
+                height: auto;
+                border-radius: 2px;
+                margin: 10px 0;
+                border: 1px solid #d4c5ae;
+                display: block;
+              }
+              
+              .diary-content blockquote {
+                margin: 10px 0;
+                padding-left: 16px;
+                border-left: 3px solid #bdab92;
+                color: #6a5a4a;
+                font-style: italic;
+              }
+              
+              .diary-content code {
+                background: #e8e0d4;
+                padding: 2px 5px;
+                border-radius: 2px;
+                font-size: 0.85em;
+              }
+              
+              .empty-diary {
+                text-align: center;
+                padding: 40px 20px;
+                color: #9a8a75;
+                font-style: italic;
+              }
+              
+              header {
+                text-align: center;
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 3px double #bdab92;
+              }
+              
+              h1 {
+                font-family: 'Bricolage Grotesque', sans-serif;
+                font-size: 3rem;
+                font-weight: 700;
+                color: #4a3424;
+                letter-spacing: -0.02em;
+                margin-bottom: 5px;
+                text-shadow: 1px 1px 0px rgba(255,255,255,0.4);
+              }
+              
+              .subhead {
+                font-weight: 400;
+                font-style: italic;
+                color: #6a5a4a;
+                font-size: 1rem;
+              }
+              
+              .album {
+                background: rgba(248, 245, 238, 0.7);
+                border: 1px solid #c8b9a1;
+                border-radius: 2px;
+                padding: 25px;
+                margin-bottom: 35px;
+                box-shadow: inset 0 0 40px rgba(210, 195, 175, 0.15), 0 5px 15px rgba(0,0,0,0.03);
+                position: relative;
+              }
+              
+              .album h2 {
+                font-family: 'Bricolage Grotesque', sans-serif;
+                font-size: 1.8rem;
+                font-weight: 600;
+                color: #3a2a1c;
+                margin-bottom: 8px;
+              }
+              
+              .gallery-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 25px;
+              }
+              
+              .gallery-item {
+                background: #fdfcfa;
+                border: 1px solid #7a6d59;
+                padding: 8px;
+                cursor: pointer;
+                transition: all 0.25s ease;
+                box-shadow: 2px 2px 6px rgba(0,0,0,0.04);
+              }
+              
+              .gallery-item:hover {
+                transform: translateY(-2px);
+                box-shadow: 4px 6px 12px rgba(0,0,0,0.08);
+                border-color: #3a2a1c;
+              }
+              
+              .gallery-item img, .gallery-item video {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                display: block;
+                background: #e0d5c1;
+                filter: sepia(0.15) contrast(1.05);
+              }
+              
+              .gallery-item:hover img, .gallery-item:hover video {
+                filter: sepia(0) contrast(1.1);
+              }
+              
+              .gallery-item-caption {
+                padding: 12px 4px 4px 4px;
+              }
+              
+              .caption-title {
+                font-family: 'Bricolage Grotesque', sans-serif;
+                font-weight: 600;
+                font-size: 0.85rem;
+                color: #3a2a1c;
+              }
+              
+              .caption-text {
+                font-size: 0.7rem;
+                color: #5a4b3d;
+              }
+              
+              .album-description {
+                font-size: 0.9rem;
+                color: #5a4b3d;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 1px dashed #c8b9a1;
+              }
+              
+              .lightbox {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(22, 20, 18, 0.96);
+                z-index: 10000;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+              }
+              
+              .lightbox-container {
+                display: flex;
+                width: 90vw;
+                max-width: 1400px;
+                height: 85vh;
+                background: #f4efe6;
+                border-radius: 2px;
+                overflow: hidden;
+                cursor: default;
+                box-shadow: 0 25px 45px rgba(0,0,0,0.5);
+                border: 1px solid #7a6d59;
+              }
+              
+              .lightbox-image-area {
+                flex: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: #eaddcb;
+                padding: 20px;
+              }
+              
+              .lightbox-media {
+                max-width: 100%;
+                max-height: 100%;
+                object-fit: contain;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                border: 2px solid #fdfcfa;
+              }
+              
+              .lightbox-text-area {
+                width: 40%;
+                min-width: 280px;
+                background: #fdfcfa;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                border-left: 2px solid #bdab92;
+              }
+              
+              .lightbox-text-header {
+                padding: 24px 24px 16px;
+                border-bottom: 1px solid #bdab92;
+                background: #f6f3eb;
+              }
+              
+              .lightbox-text-header h3 {
+                font-family: 'Bricolage Grotesque', sans-serif;
+                font-size: 1.4rem;
+                color: #3a2a1c;
+              }
+              
+              .lightbox-caption {
+                flex: 1;
+                overflow-y: auto;
+                padding: 20px 24px;
+                font-size: 0.9rem;
+                line-height: 1.6;
+              }
+              
+              .close-hint {
+                position: fixed;
+                top: 20px;
+                right: 30px;
+                font-family: monospace;
+                color: #cca;
+                padding: 8px 16px;
+                border: 1px solid #cca;
+                cursor: pointer;
+                z-index: 10001;
+                background: rgba(0,0,0,0.5);
+              }
+              
+              .close-hint:hover {
+                background: #cca;
+                color: #161412;
+              }
+              
+              footer {
+                text-align: center;
+                margin-top: 50px;
+                padding-top: 25px;
+                border-top: 1px solid #c8b9a1;
+                font-size: 0.75rem;
+                color: #7a6d59;
+              }
+              
+              @media (max-width: 800px) {
+                .lightbox-container {
+                  flex-direction: column;
+                }
+                .lightbox-text-area {
+                  width: 100%;
+                  height: 40%;
+                }
+                .lightbox-image-area {
+                  height: 60%;
+                }
+                h1 {
+                  font-size: 2.5rem;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <header>
+                <h1>Hummingbird in Paper</h1>
+                <div class="subhead">A field notebook tracing the intersection of traditional papercraft, 3D printing, AI, and Blender automation.</div>
+              </header>
+              
+              <div class="two-columns">
+                <div class="gallery-main">
+                  <div id="gallery-container"></div>
+                </div>
+                <div class="diary-sidebar" id="diary-sidebar">
+                  <div class="diary-header">
+                    <h2>Process Diary</h2>
+                  </div>
+                  <div id="diary-container" class="diary-entries">
+                    <div class="empty-diary">Loading diary entries...</div>
+                  </div>
+                </div>
+              </div>
+              
+              <footer><a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — Built with Obsidian</footer>
+            </div>
+            
+            <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+              <div class="close-hint" onclick="closeLightbox()">✕ Close</div>
+              <div class="lightbox-container" onclick="event.stopPropagation()">
+                <div class="lightbox-image-area">
+                  <img id="lightbox-image" class="lightbox-media" style="display:none;">
+                  <video id="lightbox-video" class="lightbox-media" controls style="display:none;"></video>
+                </div>
+                <div class="lightbox-text-area">
+                  <div class="lightbox-text-header">
+                    <h3>Scribbles and Notes</h3>
+                    <div class="filename" id="lightbox-filename"></div>
+                  </div>
+                  <div id="lightbox-caption" class="lightbox-caption"></div>
+                </div>
+              </div>
+            </div>
+            
+            <div id="status-panel" class="status-panel"></div>
+            
+            <script>
+              class StatusManager {
+                constructor() { 
+                  this.panel = document.getElementById('status-panel'); 
+                }
+                show(state, message, detail = '') {
+                  this.panel.className = `status-panel show ${state}`;
+                  this.panel.innerHTML = `<span class="status-icon"></span><span class="status-text">${message}</span>${detail ? `<span class="status-detail">${detail}</span>` : ''}`;
+                  console.log(`[${state.toUpperCase()}] ${message}`, detail);
+                }
+                loading(message, detail = '') { this.show('loading', message, detail); }
+                success(message, detail = '') { this.show('success', message, detail); }
+                error(message, detail = '') { this.show('error', message, detail); }
+                warning(message, detail = '') { this.show('warning', message, detail); }
+              }
+              
+              const status = new StatusManager();
+              
+              async function fetchWithRetry(url, maxRetries = 3, delay = 1000) {
+                for (let i = 0; i < maxRetries; i++) {
+                  try {
+                    status.loading(`Fetching: ${url.split('/').pop()}...`, `Attempt ${i + 1}/${maxRetries}`);
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response;
+                  } catch (error) {
+                    console.log(`Fetch failed: ${url} (attempt ${i + 1}):`, error.message);
+                    if (i < maxRetries - 1) { 
+                      await new Promise(r => setTimeout(r, delay * (i + 1))); 
+                    }
+                  }
+                }
+                throw new Error(`Failed to fetch after ${maxRetries} attempts: ${url}`);
+              }
+              
+              const GITHUB_USER = 'NatalieC001';
+              const GITHUB_REPO = 'Hummingbird-in-Paper';
+              const BRANCH = 'main';
+              const BASE_RAW = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/gallery/`;
+              const API_BASE = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/gallery`;
+              
+              const container = document.getElementById('gallery-container');
+              const diaryContainer = document.getElementById('diary-container');
+              const lightbox = document.getElementById('lightbox');
+              const lightboxImg = document.getElementById('lightbox-image');
+              const lightboxVideo = document.getElementById('lightbox-video');
+              const lightboxCaption = document.getElementById('lightbox-caption');
+              const lightboxFilename = document.getElementById('lightbox-filename');
+              
+              function openLightbox(url, isVideo, description, filename) {
+                try {
+                  lightboxCaption.innerHTML = description || 'No description available';
+                  lightboxFilename.textContent = filename || '';
+                  if (isVideo) {
+                    lightboxImg.style.display = 'none';
+                    lightboxVideo.style.display = 'block';
+                    lightboxVideo.src = url;
+                    lightboxVideo.load();
+                    lightboxVideo.play().catch(e => console.log('Video autoplay blocked'));
+                  } else {
+                    lightboxVideo.style.display = 'none';
+                    lightboxVideo.pause();
+                    lightboxVideo.src = '';
+                    lightboxImg.style.display = 'block';
+                    lightboxImg.src = url;
+                  }
+                  lightbox.style.display = 'flex';
+                  document.body.style.overflow = 'hidden';
+                } catch (error) {
+                  console.error('Lightbox error:', error.message);
+                }
+              }
+              
+              function closeLightbox() {
+                lightbox.style.display = 'none';
+                lightboxVideo.pause();
+                lightboxVideo.src = '';
+                lightboxImg.src = '';
+                document.body.style.overflow = 'auto';
+              }
+              
+              document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+              
+              function processMarkdown(text) {
+                try {
+                  let processed = text;
+                  processed = processed.replace(/!\[\[([^\]]+)\]\]/g, (match, filename) => {
+                    const imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/${filename}`;
+                    return `<img src="${imageUrl}" alt="${filename}" loading="lazy" onerror="this.style.display='none'">`;
+                  });
+                  processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => `<img src="${url}" alt="${alt}" loading="lazy" onerror="this.style.display='none'">`);
+                  processed = processed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => `<a href="${url}" target="_blank">${text}</a>`);
+                  processed = processed.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+                  processed = processed.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+                  processed = processed.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+                  return processed;
+                } catch (e) {
+                  console.log('Markdown processing error:', e.message);
+                  return text;
+                }
+              }
+              
+              async function fetchDiaryEntries() {
+                try {
+                  status.loading('Loading diary entries...');
+                  const response = await fetchWithRetry(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/diary`, 3);
+                  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                  const contents = await response.json();
+                  const mdFiles = contents.filter(item => item.type === 'file' && item.name.endsWith('.md')).sort((a, b) => b.name.localeCompare(a.name));
+                  
+                  if (mdFiles.length === 0) {
+                    diaryContainer.innerHTML = '<div class="empty-diary">No diary entries yet</div>';
+                    return [];
+                  }
+                  
+                  status.loading(`Processing ${mdFiles.length} diary entries...`);
+                  const entries = [];
+                  for (const file of mdFiles) {
+                    try {
+                      const fileResponse = await fetchWithRetry(file.download_url, 2);
+                      const markdown = await fileResponse.text();
+                      const date = file.name.replace('.md', '');
+                      const titleMatch = markdown.match(/^#\s+(.+)$/m);
+                      const title = titleMatch ? titleMatch[1] : 'Untitled';
+                      let content = markdown.replace(/^#\s+.+$/m, '').trim() || 'No content';
+                      content = processMarkdown(content);
+                      entries.push({ date, title, html: content });
+                    } catch (error) {
+                      console.log(`Failed to process diary: ${file.name}`, error.message);
+                    }
+                  }
+                  status.success(`Loaded ${entries.length} diary entries`);
+                  return entries;
+                } catch (error) {
+                  console.error('Diary fetch failed:', error.message);
+                  status.error('Could not load diary', error.message.substring(0, 50));
+                  diaryContainer.innerHTML = `<div class="empty-diary">⚠️ Error: ${error.message.substring(0, 50)}</div>`;
+                  return [];
+                }
+              }
+              
+              window.diaryExpandedStates = [];
+              window.toggleDiaryEntry = function(index) {
+                try {
+                  const wrapper = document.getElementById(`diary-content-${index}`);
+                  const header = document.querySelector(`.diary-entry[data-entry-index="${index}"] .diary-header-clickable`);
+                  if (!wrapper || !header) return;
+                  if (window.diaryExpandedStates[index]) {
+                    wrapper.classList.remove('expanded');
+                    header.classList.remove('expanded');
+                    window.diaryExpandedStates[index] = false;
+                  } else {
+                    wrapper.classList.add('expanded');
+                    header.classList.add('expanded');
+                    window.diaryExpandedStates[index] = true;
+                  }
+                } catch (error) {
+                  console.error('Diary toggle failed:', error.message);
+                }
+              }
+              
+              async function displayDiary() {
+                const entries = await fetchDiaryEntries();
+                if (entries.length === 0) return;
+                window.diaryExpandedStates = new Array(entries.length).fill(false);
+                diaryContainer.innerHTML = entries.map((entry, index) => `
+                  <div class="diary-entry" data-entry-index="${index}">
+                    <div class="diary-header-clickable" onclick="toggleDiaryEntry(${index})">
+                      <span class="diary-toggle-icon">▶</span>
+                      <span>${entry.date} — ${entry.title}</span>
+                    </div>
+                    <div class="diary-content-wrapper" id="diary-content-${index}">
+                      <div class="diary-content">${entry.html}</div>
+                    </div>
+                  </div>
+                `).join('');
+              }
+              
+              async function fetchAlbumFolders() {
+                try {
+                  status.loading('Scanning gallery...');
+                  const response = await fetchWithRetry(API_BASE, 3);
+                  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                  const contents = await response.json();
+                  return contents.filter(item => item.type === 'dir').map(folder => folder.name);
+                } catch (error) {
+                  console.error('Album scan failed:', error.message);
+                  status.warning('Could not load gallery', error.message.substring(0, 50));
+                  return [];
+                }
+              }
+              
+              let globalDescriptions = {};
+              
+              async function fetchDescriptions() {
+                try {
+                  const response = await fetchWithRetry(`${BASE_RAW}descriptions.txt`, 2);
+                  if (!response.ok) return;
+                  const text = await response.text();
+                  const lines = text.split(/\r?\n/);
+                  let currentKey = null, currentValue = [];
+                  for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    const colonIndex = line.indexOf('|');
+                    const isNewEntry = colonIndex > 0 && (line.substring(0, colonIndex).includes('.') || line.substring(0, colonIndex).startsWith('DIR_'));
+                    if (isNewEntry) {
+                      if (currentKey) globalDescriptions[currentKey] = currentValue.join(' ').trim();
+                      currentKey = line.substring(0, colonIndex).trim();
+                      currentValue = [line.substring(colonIndex + 1).trim()];
+                    } else if (currentKey && line.trim()) {
+                      currentValue.push(line.trim());
+                    }
+                  }
+                  if (currentKey) globalDescriptions[currentKey] = currentValue.join(' ').trim();
+                } catch (error) {
+                  console.log('Descriptions optional - continuing');
+                }
+              }
+              
+              async function fetchMediaInFolder(folderName) {
+                try {
+                  const response = await fetchWithRetry(`${API_BASE}/${folderName}`, 2);
+                  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                  const contents = await response.json();
+                  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                  const videoExtensions = ['mp4', 'mov'];
+                  const media = contents.filter(item => {
+                    if (item.type !== 'file') return false;
+                    const ext = item.name.split('.').pop().toLowerCase();
+                    return [...imageExtensions, ...videoExtensions].includes(ext);
+                  });
+                  return media.map(item => {
+                    const ext = item.name.split('.').pop().toLowerCase();
+                    return {
+                      name: item.name,
+                      url: `${BASE_RAW}${folderName}/${item.name}`,
+                      isVideo: videoExtensions.includes(ext),
+                      description: globalDescriptions[item.name] || ''
+                    };
+                  });
+                } catch (error) {
+                  console.log(`Media fetch failed for ${folderName}`, error.message);
+                  return [];
+                }
+              }
+              
+              function getFolderDisplayName(folderName) {
+                const map = { 
+                  '3d_modeling': '3D Modeling', 
+                  'blender_plugin': 'Blender Plugin', 
+                  'materials': 'Materials', 
+                  'paper_cutting': 'Paper Cutting', 
+                  'progress_photos': 'Progress Photos', 
+                  'reference_images': 'Reference Images', 
+                  'templates': 'Templates' 
+                };
+                return map[folderName] || folderName;
+              }
+              
+              async function buildGallery() {
+                try {
+                  container.innerHTML = '<div style="text-align:center; padding:60px;">📦 Building gallery...</div>';
+                  status.loading('Building gallery...');
+                  await fetchDescriptions();
+                  const folders = await fetchAlbumFolders();
+                  if (folders.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding:60px; color:#9a8a75;">⚠️ No gallery folders found. Create folders in gallery/</div>';
+                    status.warning('No gallery content', 'Create folders in gallery/');
+                    return;
+                  }
+                  status.loading(`Building ${folders.length} albums...`);
+                  container.innerHTML = '';
+                  let totalItems = 0;
+                  for (const folder of folders) {
+                    try {
+                      const mediaItems = await fetchMediaInFolder(folder);
+                      totalItems += mediaItems.length;
+                      const albumDiv = document.createElement('div');
+                      albumDiv.className = 'album';
+                      const folderDesc = globalDescriptions[`DIR_${folder}`] || '';
+                      albumDiv.innerHTML = `
+                        <h2>${getFolderDisplayName(folder)}</h2>
+                        ${folderDesc ? `<div class="album-description">${folderDesc}</div>` : ''}
+                        <div class="gallery-grid" id="grid-${folder}"></div>
+                      `;
+                      container.appendChild(albumDiv);
+                      const grid = albumDiv.querySelector('.gallery-grid');
+                      if (mediaItems.length === 0) {
+                        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#9a8a75;padding:40px;">No media in this folder</div>';
+                      } else {
+                        mediaItems.forEach(media => {
+                          try {
+                            const item = document.createElement('div');
+                            item.className = 'gallery-item';
+                            item.onclick = () => openLightbox(media.url, media.isVideo, media.description, media.name);
+                            if (media.isVideo) {
+                              const video = document.createElement('video');
+                              video.src = media.url;
+                              video.muted = true;
+                              video.preload = 'metadata';
+                              video.onmouseenter = function() { this.play().catch(e => console.log('Video play failed')); };
+                              video.onmouseleave = function() { this.pause(); this.currentTime = 0; };
+                              item.appendChild(video);
+                            } else {
+                              const img = document.createElement('img');
+                              img.src = media.url;
+                              img.alt = media.name;
+                              img.loading = 'lazy';
+                              item.appendChild(img);
+                            }
+                            const caption = document.createElement('div');
+                            caption.className = 'gallery-item-caption';
+                            const plainText = media.description ? media.description.replace(/<[^>]*>/g, '') : '';
+                            caption.innerHTML = `<div class="caption-title">${media.name.replace(/\.[^/.]+$/, '').substring(0, 35)}</div><div class="caption-text">${plainText.substring(0, 80)}${plainText.length > 80 ? '...' : ''}</div>`;
+                            item.appendChild(caption);
+                            grid.appendChild(item);
+                          } catch (error) {
+                            console.log(`Failed to render: ${media.name}`, error.message);
+                          }
+                        });
+                      }
+                    } catch (error) {
+                      console.log(`Failed to build album ${folder}`, error.message);
+                    }
+                  }
+                  status.success(`Gallery complete`, `${totalItems} items loaded`);
+                } catch (error) {
+                  console.error('Gallery build failed:', error.message);
+                  container.innerHTML = `<div style="text-align:center; padding:60px; color:#c84a3a;">❌ Error: ${error.message}</div>`;
+                  status.error('Gallery build failed', error.message.substring(0, 100));
+                }
+              }
+              
+              status.loading('Initializing gallery...');
+              Promise.all([buildGallery(), displayDiary()]).catch(e => {
+                console.error('Critical initialization error:', e.message);
+                status.error('Initialization failed', e.message);
+              });
+            </script>
+          </body>
+          </html>
+          HTML
+          
+          echo "✅ Gallery HTML created at _site/index.html"
 
-      - name: Run the build
-        run: |
-          npm run build
-
-      - name: Log build info
-        run: |
-          echo 'Build completed at $(date)' >> build-log.txt
-
-      - name: Upload build log
-        uses: actions/upload-artifact@v2
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          name: build-log
-          path: build-log.txt
-
-      - name: Notify on failure
-        if: ${{ failure() }}
-        run: |
-          echo 'Build failed, check the logs!'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
