@@ -290,13 +290,27 @@ jobs:
                 border-bottom: 3px double #bdab92;
               }
               
+              .header-with-logo {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+                flex-wrap: wrap;
+                margin-bottom: 10px;
+              }
+              
+              .header-logo {
+                height: 60px;
+                width: auto;
+              }
+              
               h1 {
                 font-family: 'Bricolage Grotesque', sans-serif;
                 font-size: 3rem;
                 font-weight: 700;
                 color: #4a3424;
                 letter-spacing: -0.02em;
-                margin-bottom: 5px;
+                margin: 0;
                 text-shadow: 1px 1px 0px rgba(255,255,255,0.4);
               }
               
@@ -496,7 +510,10 @@ jobs:
                   height: 60%;
                 }
                 h1 {
-                  font-size: 2.5rem;
+                  font-size: 2rem;
+                }
+                .header-logo {
+                  height: 40px;
                 }
               }
             </style>
@@ -504,9 +521,9 @@ jobs:
           <body>
             <div class="container">
               <header>
-                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                  <img src="/Hummingbird-in-Paper/assets/images/NattyLogoMetal%20copy.webp" alt="Logo" style="height: 60px; width: auto;">
-                  <h1 style="margin: 0;">Hummingbird in Paper</h1>
+                <div class="header-with-logo">
+                  <img class="header-logo" src="assets/images/NattyLogoMetal.webp" alt="Logo" onerror="this.style.display='none'">
+                  <h1>Hummingbird in Paper</h1>
                 </div>
                 <div class="subhead">A field notebook tracing the intersection of traditional papercraft, 3D printing, AI, and Blender automation.</div>
               </header>
