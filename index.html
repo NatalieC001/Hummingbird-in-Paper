@@ -257,18 +257,14 @@
       border-bottom: 3px double #bdab92;
     }
     
-    .header-with-logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
+    .logo-container {
+      margin-bottom: 15px;
     }
     
-    .header-logo {
-      height: 60px;
-      width: auto;
+    .navy-logo {
+      max-width: 120px;
+      height: auto;
+      display: inline-block;
     }
     
     h1 {
@@ -277,7 +273,7 @@
       font-weight: 700;
       color: #4a3424;
       letter-spacing: -0.02em;
-      margin: 0;
+      margin-bottom: 5px;
       text-shadow: 1px 1px 0px rgba(255,255,255,0.4);
     }
     
@@ -477,10 +473,7 @@
         height: 60%;
       }
       h1 {
-        font-size: 2rem;
-      }
-      .header-logo {
-        height: 40px;
+        font-size: 2.5rem;
       }
     }
   </style>
@@ -488,10 +481,10 @@
 <body>
   <div class="container">
     <header>
-      <div class="header-with-logo">
-        <img class="header-logo" src="assets/images/NattyLogoMetal.webp" alt="Logo" onerror="this.style.display='none'">
-        <h1>Hummingbird in Paper</h1>
+      <div class="logo-container">
+        <img src="assets/images/NattyLogoMetal.webp" alt="Natty Logo" class="navy-logo" onerror="this.style.display='none'">
       </div>
+      <h1>Hummingbird in Paper</h1>
       <div class="subhead">A field notebook tracing the intersection of traditional papercraft, 3D printing, AI, and Blender automation.</div>
     </header>
     
