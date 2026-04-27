@@ -1,4 +1,4 @@
-name: Build jigglypuff Gallery with Obsidian Diary
+name: Build Gallery with Obsidian Diary
 
 on:
   push:
@@ -90,6 +90,51 @@ jobs:
               
               .status-text { display: block; margin-top: 8px; line-height: 1.4; }
               .status-detail { display: block; font-size: 0.75rem; color: #7a6d59; margin-top: 4px; }
+              
+              .debug-panel {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: rgba(22, 20, 18, 0.9);
+                color: #aaa;
+                border: 1px solid #444;
+                border-radius: 4px;
+                padding: 12px 16px;
+                font-family: monospace;
+                font-size: 0.7rem;
+                max-height: 200px;
+                overflow-y: auto;
+                z-index: 9998;
+                display: none;
+                max-width: 400px;
+              }
+              
+              .debug-panel.show { display: block; }
+              .debug-log { margin: 2px 0; }
+              .debug-log.error { color: #ff6b6b; }
+              .debug-log.success { color: #51cf66; }
+              .debug-log.info { color: #74c0fc; }
+              .debug-log.warn { color: #ffd93d; }
+              
+              .debug-toggle {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #444;
+                color: #aaa;
+                border: 1px solid #666;
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.9rem;
+                z-index: 9997;
+              }
+              
+              .debug-toggle:hover { background: #555; }
               
               .container { 
                 max-width: 1600px; 
@@ -287,6 +332,30 @@ jobs:
                 padding: 2px 5px;
                 border-radius: 2px;
                 font-size: 0.85em;
+              }
+              
+              .task-checkbox {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin: 6px 0;
+              }
+              
+              .task-checkbox input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+                cursor: default;
+                accent-color: #7b4c3a;
+              }
+              
+              .task-checkbox.completed label {
+                text-decoration: line-through;
+                opacity: 0.7;
+              }
+              
+              .task-checkbox label {
+                cursor: default;
+                flex: 1;
               }
               
               .empty-diary {
@@ -535,7 +604,7 @@ jobs:
                 </div>
               </div>
               
-              <footer><a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — Built with Obsidian</footer>
+              <footer> <a href="https://github.com/NatalieC001/Hummingbird-in-Paper" target="_blank">Hummingbird in Paper</a> — Built with Obsidian </footer>
             </div>
             
             <div id="lightbox" class="lightbox" onclick="closeLightbox()">
@@ -556,17 +625,64 @@ jobs:
             </div>
             
             <div id="status-panel" class="status-panel"></div>
+            <div id="debug-toggle" class="debug-toggle" onclick="toggleDebug()">🐞</div>
+            <div id="debug-panel" class="debug-panel"></div>
             
             <script>
-              class StatusManager {
-                constructor() { 
-                  this.panel = document.getElementById('status-panel'); 
+              // ==== LOGGING SYSTEM ====
+              class GalleryLogger {
+                constructor() {
+                  this.logs = [];
+                  this.maxLogs = 50;
                 }
+                
+                log(message, type = 'info', detail = '') {
+                  const timestamp = new Date().toLocaleTimeString();
+                  const entry = { timestamp, message, type, detail };
+                  this.logs.push(entry);
+                  if (this.logs.length > this.maxLogs) this.logs.shift();
+                  this.renderDebug();
+                  console.log(`[${type.toUpperCase()}] ${message}`, detail);
+                }
+                
+                renderDebug() {
+                  const panel = document.getElementById('debug-panel');
+                  if (!panel.classList.contains('show')) return;
+                  panel.innerHTML = this.logs.map(log => 
+                    `<div class="debug-log ${log.type}">[${log.timestamp}] ${log.message}${log.detail ? ' → ' + log.detail : ''}</div>`
+                  ).join('');
+                  panel.scrollTop = panel.scrollHeight;
+                }
+              }
+              
+              const logger = new GalleryLogger();
+              
+              window.toggleDebug = function() {
+                document.getElementById('debug-panel').classList.toggle('show');
+              }
+              
+              // ==== STATUS PANEL ====
+              class StatusManager {
+                constructor() {
+                  this.panel = document.getElementById('status-panel');
+                  this.states = {
+                    loading: { icon: '⟳', color: 'loading' },
+                    success: { icon: '✓', color: 'success' },
+                    error: { icon: '✕', color: 'error' },
+                    warning: { icon: '⚠', color: 'warning' }
+                  };
+                }
+                
                 show(state, message, detail = '') {
                   this.panel.className = `status-panel show ${state}`;
-                  this.panel.innerHTML = `<span class="status-icon"></span><span class="status-text">${message}</span>${detail ? `<span class="status-detail">${detail}</span>` : ''}`;
-                  console.log(`[${state.toUpperCase()}] ${message}`, detail);
+                  this.panel.innerHTML = `
+                    <span class="status-icon"></span>
+                    <span class="status-text">${message}</span>
+                    ${detail ? `<span class="status-detail">${detail}</span>` : ''}
+                  `;
+                  logger.log(message, state, detail);
                 }
+                
                 loading(message, detail = '') { this.show('loading', message, detail); }
                 success(message, detail = '') { this.show('success', message, detail); }
                 error(message, detail = '') { this.show('error', message, detail); }
@@ -575,23 +691,26 @@ jobs:
               
               const status = new StatusManager();
               
+              // ==== RETRY LOGIC ====
               async function fetchWithRetry(url, maxRetries = 3, delay = 1000) {
                 for (let i = 0; i < maxRetries; i++) {
                   try {
                     status.loading(`Fetching: ${url.split('/').pop()}...`, `Attempt ${i + 1}/${maxRetries}`);
                     const response = await fetch(url);
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    logger.log(`Fetch successful: ${url}`, 'success');
                     return response;
                   } catch (error) {
-                    console.log(`Fetch failed: ${url} (attempt ${i + 1}):`, error.message);
-                    if (i < maxRetries - 1) { 
-                      await new Promise(r => setTimeout(r, delay * (i + 1))); 
+                    logger.log(`Fetch failed: ${url}`, 'warn', `${error.message} (attempt ${i + 1})`);
+                    if (i < maxRetries - 1) {
+                      await new Promise(r => setTimeout(r, delay * (i + 1)));
                     }
                   }
                 }
                 throw new Error(`Failed to fetch after ${maxRetries} attempts: ${url}`);
               }
               
+              // ==== CONFIG ====
               const GITHUB_USER = 'NatalieC001';
               const GITHUB_REPO = 'Hummingbird-in-Paper';
               const BRANCH = 'main';
@@ -615,7 +734,7 @@ jobs:
                     lightboxVideo.style.display = 'block';
                     lightboxVideo.src = url;
                     lightboxVideo.load();
-                    lightboxVideo.play().catch(e => console.log('Video autoplay blocked'));
+                    lightboxVideo.play().catch(e => logger.log('Video autoplay blocked', 'warn'));
                   } else {
                     lightboxVideo.style.display = 'none';
                     lightboxVideo.pause();
@@ -626,7 +745,7 @@ jobs:
                   lightbox.style.display = 'flex';
                   document.body.style.overflow = 'hidden';
                 } catch (error) {
-                  console.error('Lightbox error:', error.message);
+                  logger.log('Lightbox error', 'error', error.message);
                 }
               }
               
@@ -640,21 +759,129 @@ jobs:
               
               document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
               
-              function processMarkdown(text) {
+              // ==== MARKDOWN PROCESSING (More Forgiving) ====
+              function processObsidianImages(text) {
+                try {
+                  return text.replace(/!\[\[([^\]]+)\]\]/g, (match, filename) => {
+                    const imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/${filename}`;
+                    return `<img src="${imageUrl}" alt="${filename}" loading="lazy" onerror="this.style.display='none'; console.warn('Image failed to load: ${filename}')">`;
+                  });
+                } catch (e) {
+                  logger.log('Obsidian image processing failed', 'warn', e.message);
+                  return text;
+                }
+              }
+              
+              function convertMarkdownLinks(text) {
+                try {
+                  const linkRegex = /(?<!!)\[([^\]]+)\]\(([^)]+)\)/g;
+                  return text.replace(linkRegex, (match, text, url) => {
+                    const finalUrl = url.startsWith('http') ? url : url;
+                    return `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+                  });
+                } catch (e) {
+                  logger.log('Markdown link processing failed', 'warn', e.message);
+                  return text;
+                }
+              }
+              
+              function convertMarkdownImages(text) {
+                try {
+                  return text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+                    return `<img src="${url}" alt="${alt}" loading="lazy" onerror="this.style.display='none'">`;
+                  });
+                } catch (e) {
+                  logger.log('Markdown image processing failed', 'warn', e.message);
+                  return text;
+                }
+              }
+              
+              function convertMarkdownLists(text) {
+                try {
+                  let lines = text.split('\n');
+                  let inList = false;
+                  let result = [];
+                  
+                  for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    const bulletMatch = line.match(/^- (.+)$/);
+                    
+                    if (bulletMatch) {
+                      if (!inList) {
+                        result.push('<ul>');
+                        inList = true;
+                      }
+                      result.push(`<li>${bulletMatch[1]}</li>`);
+                    } else {
+                      if (inList) {
+                        result.push('</ul>');
+                        inList = false;
+                      }
+                      result.push(line);
+                    }
+                  }
+                  
+                  if (inList) result.push('</ul>');
+                  return result.join('\n');
+                } catch (e) {
+                  logger.log('Markdown list processing failed', 'warn', e.message);
+                  return text;
+                }
+              }
+              
+              function processMarkdown(markdown) {
+                try {
+                  let processed = markdown;
+                  processed = processObsidianImages(processed);
+                  processed = convertMarkdownImages(processed);
+                  processed = convertMarkdownLinks(processed);
+                  processed = convertMarkdownLists(processed);
+                  return processed;
+                } catch (e) {
+                  logger.log('Markdown processing failed', 'error', e.message);
+                  return markdown;
+                }
+              }
+              
+              function convertTaskCheckboxes(text) {
                 try {
                   let processed = text;
-                  processed = processed.replace(/!\[\[([^\]]+)\]\]/g, (match, filename) => {
-                    const imageUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/diary/${filename}`;
-                    return `<img src="${imageUrl}" alt="${filename}" loading="lazy" onerror="this.style.display='none'">`;
-                  });
-                  processed = processed.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => `<img src="${url}" alt="${alt}" loading="lazy" onerror="this.style.display='none'">`);
-                  processed = processed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => `<a href="${url}" target="_blank">${text}</a>`);
+                  processed = processed.replace(/- \[ \] (.*?)(?=<|$)/gm, '<div class="task-checkbox"><input type="checkbox" disabled> <label>$1</label></div>');
+                  processed = processed.replace(/- \[x\] (.*?)(?=<|$)/gim, '<div class="task-checkbox completed"><input type="checkbox" checked disabled> <label>$1</label></div>');
+                  return processed;
+                } catch (e) {
+                  logger.log('Task checkbox processing failed', 'warn', e.message);
+                  return text;
+                }
+              }
+              
+              function convertHeaders(text) {
+                try {
+                  let processed = text;
+                  processed = processed.replace(/^###### (.+)$/gm, '<h6>$1</h6>');
+                  processed = processed.replace(/^##### (.+)$/gm, '<h5>$1</h5>');
+                  processed = processed.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
                   processed = processed.replace(/^### (.+)$/gm, '<h3>$1</h3>');
                   processed = processed.replace(/^## (.+)$/gm, '<h2>$1</h2>');
                   processed = processed.replace(/^# (.+)$/gm, '<h1>$1</h1>');
                   return processed;
                 } catch (e) {
-                  console.log('Markdown processing error:', e.message);
+                  logger.log('Header processing failed', 'warn', e.message);
+                  return text;
+                }
+              }
+              
+              function convertParagraphs(text) {
+                try {
+                  let blocks = text.split(/\n\n+/);
+                  blocks = blocks.map(block => {
+                    if (!block.trim()) return '';
+                    if (block.trim().match(/^<(h[1-6]|ul|ol|li|div|p)/)) return block;
+                    return `<p>${block.replace(/\n/g, '<br>')}</p>`;
+                  });
+                  return blocks.join('\n\n');
+                } catch (e) {
+                  logger.log('Paragraph processing failed', 'warn', e.message);
                   return text;
                 }
               }
@@ -663,47 +890,66 @@ jobs:
                 try {
                   status.loading('Loading diary entries...');
                   const response = await fetchWithRetry(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/diary`, 3);
-                  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                  
+                  if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                  }
+                  
                   const contents = await response.json();
                   const mdFiles = contents.filter(item => item.type === 'file' && item.name.endsWith('.md')).sort((a, b) => b.name.localeCompare(a.name));
                   
                   if (mdFiles.length === 0) {
+                    logger.log('No diary entries found', 'warning');
                     diaryContainer.innerHTML = '<div class="empty-diary">No diary entries yet</div>';
                     return [];
                   }
                   
                   status.loading(`Processing ${mdFiles.length} diary entries...`);
+                  
                   const entries = [];
                   for (const file of mdFiles) {
                     try {
                       const fileResponse = await fetchWithRetry(file.download_url, 2);
                       const markdown = await fileResponse.text();
                       const date = file.name.replace('.md', '');
+                      
                       const titleMatch = markdown.match(/^#\s+(.+)$/m);
                       const title = titleMatch ? titleMatch[1] : 'Untitled';
-                      let content = markdown.replace(/^#\s+.+$/m, '').trim() || 'No content';
-                      content = processMarkdown(content);
-                      entries.push({ date, title, html: content });
+                      
+                      let contentForDisplay = markdown.replace(/^#\s+.+$/m, '').trim() || 'No additional content';
+                      
+                      let processedContent = contentForDisplay;
+                      processedContent = processMarkdown(processedContent);
+                      processedContent = convertTaskCheckboxes(processedContent);
+                      processedContent = convertHeaders(processedContent);
+                      processedContent = convertParagraphs(processedContent);
+                      
+                      entries.push({ date, title, html: processedContent, filename: file.name });
+                      logger.log(`Processed diary: ${date}`, 'success');
                     } catch (error) {
-                      console.log(`Failed to process diary: ${file.name}`, error.message);
+                      logger.log(`Failed to process diary: ${file.name}`, 'error', error.message);
                     }
                   }
+                  
                   status.success(`Loaded ${entries.length} diary entries`);
                   return entries;
                 } catch (error) {
-                  console.error('Diary fetch failed:', error.message);
-                  status.error('Could not load diary', error.message.substring(0, 50));
-                  diaryContainer.innerHTML = `<div class="empty-diary">⚠️ Error: ${error.message.substring(0, 50)}</div>`;
+                  logger.log('Diary fetch failed', 'error', error.message);
+                  status.error('Could not load diary entries', error.message);
+                  diaryContainer.innerHTML = `<div class="empty-diary">⚠️ Error loading diary: ${error.message.substring(0, 50)}</div>`;
                   return [];
                 }
               }
               
               window.diaryExpandedStates = [];
+              
               window.toggleDiaryEntry = function(index) {
                 try {
                   const wrapper = document.getElementById(`diary-content-${index}`);
                   const header = document.querySelector(`.diary-entry[data-entry-index="${index}"] .diary-header-clickable`);
+                  
                   if (!wrapper || !header) return;
+                  
                   if (window.diaryExpandedStates[index]) {
                     wrapper.classList.remove('expanded');
                     header.classList.remove('expanded');
@@ -714,37 +960,46 @@ jobs:
                     window.diaryExpandedStates[index] = true;
                   }
                 } catch (error) {
-                  console.error('Diary toggle failed:', error.message);
+                  logger.log('Diary toggle failed', 'error', error.message);
                 }
               }
               
               async function displayDiary() {
                 const entries = await fetchDiaryEntries();
                 if (entries.length === 0) return;
+                
                 window.diaryExpandedStates = new Array(entries.length).fill(false);
-                diaryContainer.innerHTML = entries.map((entry, index) => `
-                  <div class="diary-entry" data-entry-index="${index}">
-                    <div class="diary-header-clickable" onclick="toggleDiaryEntry(${index})">
-                      <span class="diary-toggle-icon">▶</span>
-                      <span>${entry.date} — ${entry.title}</span>
+                
+                diaryContainer.innerHTML = entries.map((entry, index) => {
+                  return `
+                    <div class="diary-entry" data-entry-index="${index}">
+                      <div class="diary-header-clickable" onclick="toggleDiaryEntry(${index})">
+                        <span class="diary-toggle-icon">▶</span>
+                        <span class="diary-date-title">${entry.date} — ${entry.title}</span>
+                      </div>
+                      <div class="diary-content-wrapper" id="diary-content-${index}">
+                        <div class="diary-content">${entry.html}</div>
+                      </div>
                     </div>
-                    <div class="diary-content-wrapper" id="diary-content-${index}">
-                      <div class="diary-content">${entry.html}</div>
-                    </div>
-                  </div>
-                `).join('');
+                  `;
+                }).join('');
               }
               
               async function fetchAlbumFolders() {
                 try {
-                  status.loading('Scanning gallery...');
+                  status.loading('Scanning gallery folders...');
                   const response = await fetchWithRetry(API_BASE, 3);
+                  
                   if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                  
                   const contents = await response.json();
-                  return contents.filter(item => item.type === 'dir').map(folder => folder.name);
+                  const folders = contents.filter(item => item.type === 'dir').map(folder => folder.name);
+                  
+                  logger.log(`Found ${folders.length} gallery folders`, 'success', folders.join(', '));
+                  return folders;
                 } catch (error) {
-                  console.error('Album scan failed:', error.message);
-                  status.warning('Could not load gallery', error.message.substring(0, 50));
+                  logger.log('Album folder scan failed', 'error', error.message);
+                  status.warning('Could not load gallery structure', error.message.substring(0, 50));
                   return [];
                 }
               }
@@ -753,33 +1008,50 @@ jobs:
               
               async function fetchDescriptions() {
                 try {
+                  status.loading('Loading gallery descriptions...');
                   const response = await fetchWithRetry(`${BASE_RAW}descriptions.txt`, 2);
-                  if (!response.ok) return;
+                  
+                  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                  
                   const text = await response.text();
                   const lines = text.split(/\r?\n/);
-                  let currentKey = null, currentValue = [];
+                  let currentKey = null;
+                  let currentValue = [];
+                  
                   for (let i = 0; i < lines.length; i++) {
                     const line = lines[i];
                     const colonIndex = line.indexOf('|');
-                    const isNewEntry = colonIndex > 0 && (line.substring(0, colonIndex).includes('.') || line.substring(0, colonIndex).startsWith('DIR_'));
+                    const isNewEntry = colonIndex > 0 && (
+                      line.substring(0, colonIndex).includes('.') || 
+                      line.substring(0, colonIndex).startsWith('DIR_')
+                    );
+                    
                     if (isNewEntry) {
-                      if (currentKey) globalDescriptions[currentKey] = currentValue.join(' ').trim();
+                      if (currentKey) {
+                        globalDescriptions[currentKey] = currentValue.join(' ').trim();
+                      }
                       currentKey = line.substring(0, colonIndex).trim();
                       currentValue = [line.substring(colonIndex + 1).trim()];
                     } else if (currentKey && line.trim()) {
                       currentValue.push(line.trim());
                     }
                   }
-                  if (currentKey) globalDescriptions[currentKey] = currentValue.join(' ').trim();
+                  if (currentKey) {
+                    globalDescriptions[currentKey] = currentValue.join(' ').trim();
+                  }
+                  
+                  logger.log(`Loaded ${Object.keys(globalDescriptions).length} descriptions`, 'success');
                 } catch (error) {
-                  console.log('Descriptions optional - continuing');
+                  logger.log('Descriptions fetch optional - continuing', 'warning', error.message.substring(0, 50));
                 }
               }
               
               async function fetchMediaInFolder(folderName) {
                 try {
                   const response = await fetchWithRetry(`${API_BASE}/${folderName}`, 2);
+                  
                   if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                  
                   const contents = await response.json();
                   const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
                   const videoExtensions = ['mp4', 'mov'];
@@ -788,6 +1060,9 @@ jobs:
                     const ext = item.name.split('.').pop().toLowerCase();
                     return [...imageExtensions, ...videoExtensions].includes(ext);
                   });
+                  
+                  logger.log(`Found ${media.length} media items in ${folderName}`, 'success');
+                  
                   return media.map(item => {
                     const ext = item.name.split('.').pop().toLowerCase();
                     return {
@@ -798,20 +1073,20 @@ jobs:
                     };
                   });
                 } catch (error) {
-                  console.log(`Media fetch failed for ${folderName}`, error.message);
+                  logger.log(`Media fetch failed for ${folderName}`, 'warn', error.message.substring(0, 50));
                   return [];
                 }
               }
               
               function getFolderDisplayName(folderName) {
-                const map = { 
-                  '3d_modeling': '3D Modeling', 
-                  'blender_plugin': 'Blender Plugin', 
-                  'materials': 'Materials', 
-                  'paper_cutting': 'Paper Cutting', 
-                  'progress_photos': 'Progress Photos', 
-                  'reference_images': 'Reference Images', 
-                  'templates': 'Templates' 
+                const map = {
+                  '3d_modeling': '3D Modeling',
+                  'blender_plugin': 'Blender Plugin',
+                  'materials': 'Materials',
+                  'paper_cutting': 'Paper Cutting',
+                  'progress_photos': 'Progress Photos',
+                  'reference_images': 'Reference Images',
+                  'templates': 'Templates'
                 };
                 return map[folderName] || folderName;
               }
@@ -820,20 +1095,26 @@ jobs:
                 try {
                   container.innerHTML = '<div style="text-align:center; padding:60px;">📦 Building gallery...</div>';
                   status.loading('Building gallery...');
+                  
                   await fetchDescriptions();
                   const folders = await fetchAlbumFolders();
+                  
                   if (folders.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; padding:60px; color:#9a8a75;">⚠️ No gallery folders found. Create folders in gallery/</div>';
-                    status.warning('No gallery content', 'Create folders in gallery/');
+                    container.innerHTML = '<div style="text-align:center; padding:60px; color:#9a8a75;">⚠️ No gallery folders found. Create folders in <code>gallery/</code></div>';
+                    status.warning('No gallery content', 'Create folders in gallery/ directory');
                     return;
                   }
+                  
                   status.loading(`Building ${folders.length} albums...`);
                   container.innerHTML = '';
+                  
                   let totalItems = 0;
+                  
                   for (const folder of folders) {
                     try {
                       const mediaItems = await fetchMediaInFolder(folder);
                       totalItems += mediaItems.length;
+                      
                       const albumDiv = document.createElement('div');
                       albumDiv.className = 'album';
                       const folderDesc = globalDescriptions[`DIR_${folder}`] || '';
@@ -844,6 +1125,7 @@ jobs:
                       `;
                       container.appendChild(albumDiv);
                       const grid = albumDiv.querySelector('.gallery-grid');
+                      
                       if (mediaItems.length === 0) {
                         grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#9a8a75;padding:40px;">No media in this folder</div>';
                       } else {
@@ -857,7 +1139,7 @@ jobs:
                               video.src = media.url;
                               video.muted = true;
                               video.preload = 'metadata';
-                              video.onmouseenter = function() { this.play().catch(e => console.log('Video play failed')); };
+                              video.onmouseenter = function() { this.play().catch(e => logger.log('Video play failed', 'warn')); };
                               video.onmouseleave = function() { this.pause(); this.currentTime = 0; };
                               item.appendChild(video);
                             } else {
@@ -865,42 +1147,52 @@ jobs:
                               img.src = media.url;
                               img.alt = media.name;
                               img.loading = 'lazy';
+                              img.onerror = function() { logger.log(`Image failed: ${media.name}`, 'warn'); };
                               item.appendChild(img);
                             }
                             const caption = document.createElement('div');
                             caption.className = 'gallery-item-caption';
                             const plainText = media.description ? media.description.replace(/<[^>]*>/g, '') : '';
-                            caption.innerHTML = `<div class="caption-title">${media.name.replace(/\.[^/.]+$/, '').substring(0, 35)}</div><div class="caption-text">${plainText.substring(0, 80)}${plainText.length > 80 ? '...' : ''}</div>`;
+                            caption.innerHTML = `
+                              <div class="caption-title">${media.name.replace(/\.[^/.]+$/, '').substring(0, 35)}</div>
+                              <div class="caption-text">${plainText.substring(0, 80)}${plainText.length > 80 ? '...' : ''}</div>
+                            `;
                             item.appendChild(caption);
                             grid.appendChild(item);
                           } catch (error) {
-                            console.log(`Failed to render: ${media.name}`, error.message);
+                            logger.log(`Failed to render item ${media.name}`, 'error', error.message);
                           }
                         });
                       }
                     } catch (error) {
-                      console.log(`Failed to build album ${folder}`, error.message);
+                      logger.log(`Failed to build album ${folder}`, 'error', error.message);
+                      const albumDiv = document.createElement('div');
+                      albumDiv.className = 'album';
+                      albumDiv.innerHTML = `<h2>${getFolderDisplayName(folder)}</h2><div style="color:#c84a3a;">⚠️ Failed to load: ${error.message.substring(0, 50)}</div>`;
+                      container.appendChild(albumDiv);
                     }
                   }
+                  
                   status.success(`Gallery complete`, `${totalItems} items loaded`);
                 } catch (error) {
-                  console.error('Gallery build failed:', error.message);
-                  container.innerHTML = `<div style="text-align:center; padding:60px; color:#c84a3a;">❌ Error: ${error.message}</div>`;
+                  logger.log('Gallery build failed', 'error', error.message);
+                  container.innerHTML = `<div style="text-align:center; padding:60px; color:#c84a3a;">❌ Gallery build failed: ${error.message}</div>`;
                   status.error('Gallery build failed', error.message.substring(0, 100));
                 }
               }
               
-              status.loading('Initializing gallery...');
+              // ==== INIT ====
+              logger.log('Page loaded, initializing gallery...', 'info');
+              status.loading('Initializing gallery system...');
               Promise.all([buildGallery(), displayDiary()]).catch(e => {
-                console.error('Critical initialization error:', e.message);
+                logger.log('Critical initialization error', 'error', e.message);
                 status.error('Initialization failed', e.message);
               });
             </script>
           </body>
-          </html>
           HTML
           
-          echo "✅ Gallery HTML created at _site/index.html"
+          echo "Gallery HTML file created successfully at _site/index.html"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
