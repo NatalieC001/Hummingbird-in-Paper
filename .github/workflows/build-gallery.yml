@@ -290,16 +290,6 @@ jobs:
                 border-bottom: 3px double #bdab92;
               }
               
-              .logo-container {
-                margin-bottom: 15px;
-              }
-              
-              .navy-logo {
-                max-width: 120px;
-                height: auto;
-                display: inline-block;
-              }
-              
               h1 {
                 font-family: 'Bricolage Grotesque', sans-serif;
                 font-size: 3rem;
@@ -514,9 +504,6 @@ jobs:
           <body>
             <div class="container">
               <header>
-                <div class="logo-container">
-                  <img src="assets/images/NattyLogoMetal.webp" alt="Natty Logo" class="navy-logo" onerror="this.style.display='none'">
-                </div>
                 <h1>Hummingbird in Paper</h1>
                 <div class="subhead">A field notebook tracing the intersection of traditional papercraft, 3D printing, AI, and Blender automation.</div>
               </header>
