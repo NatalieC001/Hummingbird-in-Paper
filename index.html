@@ -703,7 +703,7 @@
     }
     
     async function fetchAlbumFolders() {
-      /*try {
+      try {
         status.loading('Scanning gallery...');
         const response = await fetchWithRetry(API_BASE, 3);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -714,17 +714,6 @@
         status.warning('Could not load gallery', error.message.substring(0, 50));
         return [];
       }
-      */
-      // NEW CODE:
-      return [
-        '3d_modeling',
-        'blender_plugin',
-        'materials',
-        'paper_cutting',
-        'progress_photos',
-        'reference_images',
-        'templates'
-      ];
     }
     
     let globalDescriptions = {};
