@@ -9,6 +9,7 @@
 ## What this is
 
 I'm building a realistic hummingbird out of paper. This is where I keep everything – the wins, detours, and tools I accidentally built along the way.
+<img width="434" height="1024" alt="image" src="https://github.com/user-attachments/assets/4cd14d22-9e93-4964-82c5-78cec8cfa717" />
 
 <img width="2386" height="1792" alt="image" src="https://github.com/user-attachments/assets/6e48792c-c015-4b08-b644-99f0a0780790" />
 
