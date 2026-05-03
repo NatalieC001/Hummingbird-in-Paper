@@ -15,6 +15,9 @@ https://github.com/user-attachments/assets/ad166358-57b9-4682-a8f3-b4b1f5b75708
 
 <img width="1792" height="2388" alt="FullBody" src="https://github.com/user-attachments/assets/5573f6f2-c80c-4ac8-99d6-3441a43a4bb8" />
 
+<img width="1792" height="2390" alt="Gemini_Generated_Image_fcq1bxfcq1bxfcq1 (1)" src="https://github.com/user-attachments/assets/326933e4-9a0e-4e06-a5ea-323e1ab846e2" />
+
+
 ---
 
 ## The current shape of things
