@@ -13,7 +13,7 @@ I'm building a realistic hummingbird out of paper. This is where I keep everythi
 
 https://github.com/user-attachments/assets/ad166358-57b9-4682-a8f3-b4b1f5b75708
 
-
+<img width="1792" height="2388" alt="FullBody" src="https://github.com/user-attachments/assets/5573f6f2-c80c-4ac8-99d6-3441a43a4bb8" />
 
 ---
 
