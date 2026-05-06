@@ -10,6 +10,7 @@
 
 I'm building a realistic hummingbird out of paper. This is where I keep everything – the wins, detours, and tools I accidentally built along the way.
 
+<img width="736" height="982" alt="correctedWings" src="https://github.com/user-attachments/assets/77687508-6aed-4718-84cc-a6aa29ff112d" />
 
 https://github.com/user-attachments/assets/ad166358-57b9-4682-a8f3-b4b1f5b75708
 
